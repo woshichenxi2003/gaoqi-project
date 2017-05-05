@@ -11,6 +11,7 @@
   "dependencies": {
     "element-ui": "^1.2.8",
     "expose-loader": "^0.7.3",
+    "jquery": "^3.2.1",
     "vue": "^2.2.6"
   },
   "devDependencies": {

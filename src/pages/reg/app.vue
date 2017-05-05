@@ -37,164 +37,140 @@
             </div>
         </div>
     </div>
-
 </template>
 
 <script>
-    require("expose-loader?mui!assets/js/mui.js");
-    require("expose-loader?enterfocus!assets/js/mui.enterfocus.js");
-    import {app} from 'assets/js/appp.js'
-    mui.init({
-        statusBarBackground: '#f7f7f7',
-    });
-    mui.plusReady(function () {
-
-        //仅支持竖屏显示
-        plus.screen.lockOrientation("portrait-primary");
-        //获得setting系统配置
-        var settings = app.getSettings();
-        //获得用户的状态 状态中包括token和用户名
-        var state = app.getState();
-        /************************************************************************/
-        /*检查用户是否是第一次登录 如果是第一次登录 则跳转到用户欢迎页面               */
-        /************************************************************************/
-        //读取本地存储，检查是否为首次启动
-        var showGuide = plus.storage.getItem("lauchFlag");
-        if (!showGuide) {
-            mui.openWindow({
-                id: 'html/guide.html',
-                url: 'html/guide.html',
-                styles: {
-                    popGesture: "none"
-                },
-                show: {
-                    aniShow: 'none'
-                },
-                waiting: {
-                    autoShow: false
-                }
-            });
-        }
-        ;
-        /************************************************************************/
-        /*判断主页是否已经加载完毕了 并定义跳转函数tomain                            */
-        /************************************************************************/
-        var mainPage = mui.preload({
-            "id": 'index.html',
-            "url": 'index.html'
-        });
-        var main_loaded_flag = false;
-        //如果其他页面传来值，证明页面已经加载过了 不需要再判断页面是否已经加载完毕了；
-        var self = plus.webview.currentWebview();
-        if (self.main_loaded) {
-            main_loaded_flag = true;
-        }
-        mainPage.addEventListener("loaded", function () {
-            main_loaded_flag = true;
-        });
-        var toMain = function () {
-            //使用定时器的原因：
-            //可能执行太快，main页面loaded事件尚未触发就执行自定义事件，此时必然会失败
-            var id = setInterval(function () {
-                if (main_loaded_flag) {
-                    console.log('首页预加载完成，进入首页');
-                    clearInterval(id);
-                    mui.fire(mainPage, 'show', null);
-                    mainPage.show("pop-in");
-                } else {
-                    console.log("首页预加载未完成，所以不能跳转到首页");
-                }
-            }, 20);
-        };
-
-        /************************************************************************/
-        /* 检查是否满足直接跳转首页                                          */
-        /************************************************************************/
-        var time = parseInt(app.getState().expire_timestamp); //获取token过期时间戳
-        var date = parseInt(Date.parse(new Date())) / 1000;
-        var isExpired = (time > date) ? true : false; //查看是否过期 未过期为true 过期为false
-        if (time && isExpired) {
-            //有自动登录和自动登录设置了 系统直接跳转到主页 后台说需要在后台验证一下 token是否过期 那就需要添加验证功能与后台交互
-            //登录成功后 后台直接返回一个过期时间的时间戳记录在本地 下面需验证用户的时间戳是否过期 如果过期了用户留在登录页面如果未过期 直接跳转到首页
-            //加入验证用户是否完善了信息再进入主页
-            console.log('已经有用户信息，下面验证进入验证是否完善信息');
-            isPerfectAndtoMain();
-            // console.log(JSON.stringify(app.getState()));
-        } else {
-            app.setState(null);
-
-        }
-
-        /************************************************************************/
-        /*下面注册的是登录的基本按钮及登录功能                                       */
-        /************************************************************************/
-        var loginButton = document.getElementById('login');
-        var accountBox = document.getElementById('account');
-        var passwordBox = document.getElementById('password');
-        var regButton = document.getElementById('reg');
-        var forgetButton = document.getElementById('forgetPassword');
-        loginButton.addEventListener('tap', function (event) {
-            var loginInfo = {
-                mobile: accountBox.value,
-                password: passwordBox.value
-            };
-            app.login(loginInfo, function (err) {
-                if (err) {
-                    plus.nativeUI.toast(err);
+require("expose-loader?mui!assets/js/mui.js");
+require("expose-loader?enterfocus!assets/js/mui.enterfocus.js");
+import { app } from 'assets/js/appp.js'
+mui.init();
+        mui.plusReady(function() {
+            var settings = app.getSettings();
+            var regButton = document.getElementById('reg');
+            var accountBox = document.getElementById('account');
+            var passwordBox = document.getElementById('password');
+            var passwordConfirmBox = document.getElementById('password_confirm');
+            var codeBox = document.getElementById('verificationCode');
+            regButton.addEventListener('tap', function(event) {
+                var regInfo = {
+                    mobile: accountBox.value,
+                    password: passwordBox.value,
+                    code: codeBox.value
+                };
+                /**
+                 * 验证两次密码是否一致
+                 */
+                var passwordConfirm = passwordConfirmBox.value;
+                if (passwordConfirm != regInfo.password) {
+                    plus.nativeUI.toast('密码两次输入不一致');
                     return;
                 }
-                isPerfectAndtoMain();
+                /* 验证表单提交数据*/
+                app.reg(regInfo, function(err) {
+                    /*如果有错误提示用户错误信息 如果是用户已经注册过 设置用户登录信息为空后 跳转到登录页面*/
+                    if (err) {
+                        /*如果用户返回的信息是20204 设置注册信息为空*/
+                        if (err == '20204' || err == 20204) {
+                            app.setState(null);
+                            mui.openWindow({
+                                url: 'login.html',
+                                id: 'login.html',
+                                preload: true,
+                                show: {
+                                    aniShow: 'pop-in'
+                                },
+                                styles: {
+                                    popGesture: 'hide'
+                                },
+                                waiting: {
+                                    autoShow: false
+                                },
+                                // extras: {
+                                //     main_loaded: 'true'
+                                // }
+                            });
+                            plus.nativeUI.toast('用户已经注册请登录');
+                            return;
+                        }
+                        plus.nativeUI.toast(err);
+                        return;
+                    }
+                    /*如果注册成功 设置本地注册信息后跳转到信息填写页面*/
+                    plus.nativeUI.toast('注册成功');
+                    mui.openWindow({
+                        url: 'information.html',
+                        id: 'information',
+                        preload: true,
+                        show: {
+                            aniShow: 'pop-in'
+                        },
+                        styles: {
+                            popGesture: 'hide'
+                        },
+                        waiting: {
+                            autoShow: false
+                        }
+                    });
+                });
+
             });
-        });
-        mui.enterfocus('#login-form input', function () {
-            mui.trigger(loginButton, 'tap');
-        });
+            /*发送验证码*/
+            mui('.yz').on('tap', '.mui-btn', function(e) {
+                if (accountBox.value) {
+                    var isOpen = true;
+                    if (isOpen) {
+                        isOpen = false;
+                        var startTime = 120;
+                        var _this = this;
+                        //放到验证码发送成功里面
+                        var timeObj = setInterval(function() {
+                            if (startTime == 0 && startTime <= 0) {
+                                setTimeout(function() {
+                                    clearInterval(timeObj);
+                                    mui(_this).button('reset');
+                                    isOpen = true;
+                                    startTime = 120;
+                                }.bind(_this), 10);
+                            } else {
+                                var timeString = startTime + '秒';
+                                mui(_this).button('loading');
+                                mui('.textmsg')[0].innerHTML = timeString;
+                                startTime--;
+                            }
+                        }, 1000);
 
-        var regObj = mui.preload({
-            "id": 'reg.html',
-            "url": 'reg.html'
-        });
-        var missObj = mui.preload({
-            "id": 'forget_password.html',
-            "url": 'forget_password.html'
-        });
+                        console.log('有电话号码执行发送验证码')
+                        app.getverificationCode(accountBox.value, function(err) {
+                            if (err) {
+                                console.log('发送成功但是有错误产生 系统弹出警告');
+                                clearInterval(timeObj);
+                                mui(_this).button('reset');
+                                isOpen = true;
+                                startTime = 120;
+                                plus.nativeUI.toast(err);
+                                return;
+                            }
+                            plus.nativeUI.toast('验证码已发送，请注意查收！');
+                        })
 
-        regButton.addEventListener('tap', function (event) {
-            plus.webview.show(regObj, 'pop-in', 250);
-        }, false);
-        forgetButton.addEventListener('tap', function (event) {
+                    } else {
+                        plus.nativeUI.toast('验证码已经发送，请不要重复点击');
+                    }
+                } else {
+                    plus.nativeUI.toast('请先输入手机号码再发送验证码！');
+                }
 
-            plus.webview.show(missObj, 'pop-in', 250);
-        }, false);
-        //
-        window.addEventListener('resize', function () {
-            oauthArea.style.display = document.body.clientHeight > 400 ? 'block' : 'none';
-        }, false);
-        //
-        var backButtonPress = 0;
-        mui.back = function (event) {
-            backButtonPress++;
-            if (backButtonPress > 1) {
-                plus.runtime.quit();
-            } else {
-                plus.nativeUI.toast('再按一次退出应用');
-            }
-            setTimeout(function () {
-                backButtonPress = 0;
-            }, 1000);
-            return false;
-        };
 
-        function isPerfectAndtoMain() {
-            var userdata = app.getState();
-            if (!userdata.user.is_perfect || userdata.user.is_perfect != 1) {
-                console.log("用户未完善信息，跳转到填写信息页面");
-                plus.nativeUI.toast('请您完善个人信息');
-                // app.setReginfo('ticket', userdata.ticket);
-                //跳转到填写信息的页面
+            });
+
+            mui('.mui-checkbox').on('change', 'input', function() {
+                var value = this.checked ? "true" : "false";
+                /*是否同意协议*/
+            });
+            mui('.mui-checkbox').on('tap', 'a', function() {
                 mui.openWindow({
-                    url: 'information.html',
-                    id: 'information.html',
+                    url: 'agreement.html',
+                    id: 'agreement',
                     preload: true,
                     show: {
                         aniShow: 'pop-in'
@@ -206,14 +182,14 @@
                         autoShow: false
                     }
                 });
-            } else {
-                console.log('用户已经完善信息 进入首页11');
-                toMain();
-            }
-        }
-    })
-    export default {}
-</script>
-<style>
+            });
 
+        });
+export default {}
+</script>
+
+<style>
+.mui-input-group:first-child {
+        margin-top: 200px;
+    }
 </style>
