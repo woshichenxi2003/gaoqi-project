@@ -1,0 +1,419 @@
+ .mui-input-group {
+     margin-top: 10px;
+     background-color: transparent !important;
+ }
+ 
+ .mui-input-group:first-child {
+     margin-top: 0;
+     background-color: transparent !important;
+ }
+ 
+ .mui-input-group label {
+     width: 15%;
+ }
+ 
+ .mui-input-group label.iconuser {
+     background: url(../img/login_icon_03.png) no-repeat 15px center;
+     background-size: auto 60%;
+ }
+ 
+ .mui-input-group label.iconpassword {
+     background: url(../img/login_icon_07.png) no-repeat 17px center;
+     background-size: auto 65%;
+ }
+ 
+ .mui-input-group .mui-input-row {
+     width: 85%;
+     margin: 0 auto;
+     background: url(../img/baitou_03.png);
+     border-radius: 35px;
+     -moz-border-radius: 35px;
+     -webkit-border-radius: 35px;
+     font-size: 14px;
+     margin-bottom: 10px;
+ }
+ 
+ .text_show {
+     height: 40px;
+     line-height: 40px;
+     outline: 0;
+     -webkit-appearance: none;
+     font-family: 'Helvetica Neue', Helvetica, sans-serif;
+     font-size: 14px;
+     float: right;
+     width: 85%;
+     color: #a5a9a9;
+     background: url(../img/arrow_04.png) 95% center no-repeat;
+     background-size: auto 40%;
+ }
+ 
+ .mui-input-group .mui-input-row.text_area {
+     height: auto;
+     min-height: 40px;
+     border-radius: 15px;
+     -moz-border-radius: 15px;
+     -webkit-border-radius: 15px;
+ }
+ 
+ .mui-input-group:before {
+     position: absolute;
+     top: 0;
+     right: 0;
+     left: 0;
+     height: 0px;
+     content: '';
+     -webkit-transform: scaleY(.5);
+     transform: scaleY(.5);
+     background-color: #c8c7cc;
+ }
+ 
+ .mui-input-group:after {
+     position: absolute;
+     top: 0;
+     right: 0;
+     left: 0;
+     height: 0px;
+     content: '';
+     -webkit-transform: scaleY(.5);
+     transform: scaleY(.5);
+     background-color: #c8c7cc;
+ }
+ 
+ .mui-input-group .mui-input-row:after {
+     position: absolute;
+     right: 0;
+     bottom: 0;
+     left: 15px;
+     height: 0px;
+     content: '';
+     -webkit-transform: scaleY(.5);
+     transform: scaleY(.5);
+     background-color: #c8c7cc;
+ }
+ 
+ .mui-input-group .mui-input-row textarea {
+     color: #ffffff;
+ }
+ 
+ .mui-input-row label~input,
+ .mui-input-row label~select,
+ .mui-input-row label~textarea {
+     width: 85%;
+     color: #ffffff;
+ }
+ 
+ .mui-checkbox input[type=checkbox],
+ .mui-radio input[type=radio] {
+     top: 6px;
+ }
+ 
+ .mui-btn-cheng {
+     width: 85%;
+     margin: 0 auto;
+     border-radius: 35px;
+     -moz-border-radius: 35px;
+     -webkit-border-radius: 35px;
+ }
+ /*html,body{*/
+ /*height: 100%;*/
+ /*}*/
+ 
+ .mui-content {
+     /*height: 100%;*/
+     background: -webkit-linear-gradient(top, #0153a9, #015591, #002540);
+     ;
+ }
+ 
+ .mui-bar-footer {
+     bottom: 0;
+     background: #002540;
+     transition: all 0.5s linear;
+     height: 80px !important;
+ }
+ 
+ .match_info {
+     background: none;
+     height: 325px;
+ }
+ 
+ .mui-bar {
+     position: fixed;
+     z-index: 10;
+     right: 0;
+     left: 0;
+     height: 45px;
+     padding-right: 0px;
+     padding-left: 0px;
+     border-bottom: 0;
+     /*background-color: #f7f7f7;*/
+     -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, .85);
+     box-shadow: 0 0 1px rgba(0, 0, 0, .85);
+     -webkit-backface-visibility: hidden;
+     backface-visibility: hidden;
+ }
+ 
+ .mui-bar-footer .mui-btn-hong-creat {
+     width: 100%;
+     line-height: 20px;
+     position: relative;
+     height: 45px;
+ }
+ 
+ .mui-bar-footer .mui-btn-hong-creat .ts {
+     display: block;
+     position: absolute;
+     right: 10%;
+     top: 5px;
+     width: 29px;
+     /*background: url(../img/tousu_22.png) no-repeat;*/
+ }
+ 
+ .mui-bar-footer .mui-btn-hong-creat .ts img {
+     width: 100%;
+     height: 100%;
+ }
+ 
+ .mui-btn-hong-creat .btn_title {
+     height: 27px;
+     line-height: 27px;
+ }
+ 
+ .blink {
+     -webkit-animation: neon1 1.5s ease-in-out infinite alternate;
+     -moz-animation: neon1 1.5s ease-in-out infinite alternate;
+     animation: neon1 1.5s ease-in-out infinite alternate;
+ }
+ 
+ .mui-btn-hong-creat p {
+     color: #fff;
+     font-size: 12px;
+     line-height: 12px;
+ }
+ 
+ .show_title {
+     width: 85%;
+     margin: 0 auto;
+     border-radius: 35px;
+     -moz-border-radius: 35px;
+     -webkit-border-radius: 35px;
+     font-size: 14px;
+     margin-bottom: 10px;
+     color: #fff;
+ }
+ 
+ .show_title1 {
+     width: 85%;
+     margin: 0 auto;
+     border-radius: 35px;
+     -moz-border-radius: 35px;
+     -webkit-border-radius: 35px;
+     font-size: 16px;
+     margin-top: 30px;
+     text-align: left;
+     color: #fff;
+ }
+ 
+ .inform {
+     width: 185px;
+     text-align: center;
+     margin: 0 auto;
+     font-size: 12px;
+     line-height: 35px;
+     height: 35px;
+     color: #fc3e3e;
+     vertical-align: middle;
+     background: url(../img/gaozhi_18.png) no-repeat center left #002540;
+     background-size: auto 60%;
+     text-indent: 25px;
+ }
+ /*.inform img{display: inline-block;}*/
+ 
+ .match_game {
+     width: 100%;
+     position: relative;
+     height: 40px;
+     line-height: 40px;
+     margin-top: 10px;
+ }
+ 
+ .match_game:before {
+     content: "";
+     display: block;
+     position: absolute;
+     width: 25%;
+     height: 1px;
+     background: url(../img/toubg_05.png) repeat-x;
+     top: 50%;
+     left: 0;
+     margin-top: -1px;
+     opacity: 0.6;
+ }
+ 
+ .match_game:after {
+     content: "";
+     display: block;
+     position: absolute;
+     width: 25%;
+     height: 1px;
+     background: url(../img/toubg_05.png) repeat-x;
+     top: 50%;
+     right: 0;
+     margin-top: -1px;
+     opacity: 0.6;
+ }
+ 
+ .match_game .game_name {
+     width: 50%;
+     margin: 0 auto;
+     text-align: center;
+     color: #ffffff;
+     background: url(../img/bgd_02.png) no-repeat center center;
+     background-size: 100% auto;
+ }
+ 
+ .team_name {
+     color: #ffffff;
+ }
+ 
+ .match_time {
+     line-height: 25px;
+     color: #ffffff;
+     font-size: 14px;
+     text-align: center;
+ }
+ 
+ .match_con {
+     width: 100%;
+     border-top: 1px dashed #cdcdcd;
+     padding-bottom: 40px;
+ }
+ 
+ .match_num {
+     width: 85%;
+     margin: 0 auto;
+     line-height: 30px;
+     color: #ffffff;
+     margin-top: 15px;
+ }
+ 
+ .match_infomain {
+     text-align: center;
+     color: #ffffff;
+     padding: 0px;
+ }
+ 
+ .match_infomain .match_info_zy {
+     width: 85%;
+     margin: 20px auto;
+     text-align: justify;
+     text-align-last: justify;
+ }
+ 
+ .match_infomain .match_info_zy select {
+     width: 30%;
+     display: inline-block;
+     padding: 0;
+     margin: 0;
+     font-size: 14px;
+     line-height: 25px;
+     text-align: center;
+     text-align-last: center;
+ }
+ 
+ .match_infomain .match_info_zy select option {
+     padding: 0;
+     margin-left: 10px;
+ }
+ 
+ .match_infomain .match_info_zy span {
+     display: inline-block;
+     font-size: 14px;
+ }
+ 
+ .match_infomain .match_info_zy .match_info_inputstyle input {
+     display: inline-block;
+     width: 60%;
+     padding: 0;
+     margin: 0;
+     line-height: 25px;
+     font-size: 14px;
+     height: 25px;
+ }
+ 
+ .match_infomain .match_info_zy .match_info_inputstyle span {
+     display: inline-block;
+     width: 30%;
+ }
+ 
+ #showEdit {
+     background: url(../img/heitou_07.png);
+     width: 100%;
+     height: 100%;
+     position: fixed;
+     top: 0;
+     z-index: 99999;
+     display: none;
+ }
+ 
+ #showEdit .mui-bar {
+     background: none;
+     position: absolute;
+     top: 0;
+     z-index: 9999999999;
+ }
+ 
+ #showEdit .mui-icon-close_btn {
+     width: 45px;
+ }
+ 
+ #showEdit .mui-icon-close_btn img {
+     width: 100%;
+ }
+ 
+ #showEdit .mui-icon-check_btn {
+     width: 45px;
+ }
+ 
+ #showEdit .mui-icon-check_btn img {
+     width: 100%;
+ }
+ 
+ #report {
+     /*padding: 30px;*/
+     text-align: center;
+ }
+ 
+ #report img {
+     width: 100%;
+     /*margin-top: 55px;*/
+ }
+ 
+ #face_box {
+     width: 85%;
+     min-height: 200px;
+     background: url(../img/face_04.png) no-repeat center center #739abd;
+     background-size: 30%;
+     margin: 20px auto;
+     border: 1px solid #658bae;
+     overflow: hidden;
+ }
+ 
+ #face_box img {
+     width: 100%;
+ }
+ 
+ #face_box canvas {
+     width: 100%;
+     border-radius: 50%;
+     -moz-border-radius: 50%;
+     -webkit-border-radius: 50%;
+     border: 1px solid #658bae;
+ }
+ 
+ canvas {
+     width: 100%;
+     border-radius: 50%;
+     -moz-border-radius: 50%;
+     -webkit-border-radius: 50%;
+     border: 1px solid #658bae;
+ }

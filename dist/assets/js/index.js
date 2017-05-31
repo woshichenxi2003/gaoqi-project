@@ -1,4 +1,4 @@
-webpackJsonp([4],{
+webpackJsonp([31],{
 
 /***/ 1:
 /***/ (function(module, exports) {
@@ -7,30 +7,7 @@ webpackJsonp([4],{
 
 /***/ }),
 
-/***/ 19:
-/***/ (function(module, exports, __webpack_require__) {
-
-
-/* styles */
-__webpack_require__(53)
-
-var Component = __webpack_require__(8)(
-  /* script */
-  __webpack_require__(26),
-  /* template */
-  __webpack_require__(63),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-
-module.exports = Component.exports
-
-
-/***/ }),
-
-/***/ 26:
+/***/ 103:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -70,7 +47,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 
-__webpack_require__(5);
+__webpack_require__(6);
 mui.init();
 var subpages = ['user_private.html', 'friend.html', 'match.html', 'msg.html', 'team.html'];
 var subpage_style = {
@@ -95,8 +72,14 @@ mui.plusReady(function () {
             mui.extend(aniShow, temp);
         }
         self.append(sub);
-    }
-    ;
+    };
+    //接收登陆页面加载的事件 然后通知各子页面刷新
+    window.addEventListener('showall', function (event) {
+        console.log('获得首页的事件');
+        var user_private = plus.webview.getWebviewById('user_private.html');
+        mui.fire(user_private, 'refresh', null);
+    });
+
     btnArray[0].style.display = 'none';
     btnArray[1].style.display = 'block';
     btnArray[2].style.display = 'none';
@@ -124,11 +107,11 @@ mui.plusReady(function () {
         //更换标题
         title.innerHTML = this.querySelector('.mui-tab-label').innerHTML;
         //更换右上角搜索 创建战队 设置的按钮
-        if (targetTab === 'html/team.html') {
+        if (targetTab === 'team.html') {
             btnArray[0].style.display = 'block';
             btnArray[1].style.display = 'none';
             btnArray[2].style.display = 'block';
-        } else if (targetTab === 'html/user_private.html') {
+        } else if (targetTab === 'user_private.html') {
             btnArray[0].style.display = 'none';
             btnArray[1].style.display = 'block';
             btnArray[2].style.display = 'none';
@@ -185,6 +168,21 @@ mui.plusReady(function () {
         }, 1000);
         return false;
     };
+    //进入创建战队页面
+    mui('.mui-bar').on('tap', '.creat_team', function (e) {
+        mui.openWindow({
+            url: "creat_team.html",
+            id: "creat_team.html",
+            preload: true
+        });
+    });
+    mui('.mui-bar').on('tap', '.mui-icon-search', function (e) {
+        mui.openWindow({
+            url: "search.html",
+            id: "search.html",
+            preload: true
+        });
+    });
 
     //增加首页刷新时间
 });
@@ -193,7 +191,158 @@ mui.plusReady(function () {
 
 /***/ }),
 
-/***/ 4:
+/***/ 138:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_vue__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__app_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_assets_css_public_css__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_assets_css_public_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_assets_css_public_css__);
+
+
+
+
+__WEBPACK_IMPORTED_MODULE_0_vue___default.a.config.productionTip = false;
+new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
+    el: '#app',
+    render: function render(h) {
+        return h(__WEBPACK_IMPORTED_MODULE_1__app_vue___default.a);
+    }
+});
+
+/***/ }),
+
+/***/ 188:
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+
+/***/ 236:
+/***/ (function(module, exports) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _vm._m(0)
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_c('header', {
+    staticClass: "mui-bar mui-bar-nav"
+  }, [_c('a', {
+    staticClass: "mui-icon mui-icon-search mui-pull-right",
+    attrs: {
+      "id": "search_btn"
+    }
+  }), _vm._v(" "), _c('a', {
+    staticClass: "mui-icon mui-icon-gear-filled mui-pull-right",
+    attrs: {
+      "id": "setting"
+    }
+  }), _vm._v(" "), _c('a', {
+    staticClass: "mui-icon mui-pull-right creat_team",
+    attrs: {
+      "id": "creat_team_btn"
+    }
+  }, [_vm._v("创建战队")]), _vm._v(" "), _c('h1', {
+    staticClass: "mui-title",
+    attrs: {
+      "id": "title"
+    }
+  }, [_vm._v("个人中心")])]), _vm._v(" "), _c('nav', {
+    staticClass: "mui-bar mui-bar-tab"
+  }, [_c('a', {
+    staticClass: "mui-tab-item",
+    attrs: {
+      "href": "msg.html"
+    }
+  }, [_c('span', {
+    staticClass: "gaoqi-icon gaoqi-icon-msg",
+    staticStyle: {
+      "top": "5px"
+    }
+  }, [_c('span', {
+    staticClass: "mui-badge mui-badge-danger"
+  })]), _vm._v(" "), _c('span', {
+    staticClass: "mui-tab-label"
+  }, [_vm._v("消息")])]), _vm._v(" "), _c('a', {
+    staticClass: "mui-tab-item",
+    attrs: {
+      "href": "friend.html"
+    }
+  }, [_c('span', {
+    staticClass: "gaoqi-icon gaoqi-icon-hb"
+  }), _vm._v(" "), _c('span', {
+    staticClass: "mui-tab-label"
+  }, [_vm._v("伙伴")])]), _vm._v(" "), _c('a', {
+    staticClass: "mui-tab-item mui-active",
+    attrs: {
+      "id": "defaultTab",
+      "href": "user_private.html"
+    }
+  }, [_c('span', {
+    staticClass: "gaoqi-icon gaoqi-icon-me"
+  }), _vm._v(" "), _c('span', {
+    staticClass: "mui-tab-label"
+  }, [_vm._v("我的")])]), _vm._v(" "), _c('a', {
+    staticClass: "mui-tab-item",
+    attrs: {
+      "href": "match.html"
+    }
+  }, [_c('span', {
+    staticClass: "gaoqi-icon gaoqi-icon-ss"
+  }), _vm._v(" "), _c('span', {
+    staticClass: "mui-tab-label"
+  }, [_vm._v("赛事")])]), _vm._v(" "), _c('a', {
+    staticClass: "mui-tab-item",
+    attrs: {
+      "href": "team.html"
+    }
+  }, [_c('span', {
+    staticClass: "gaoqi-icon gaoqi-icon-zd"
+  }), _vm._v(" "), _c('span', {
+    staticClass: "mui-tab-label"
+  }, [_vm._v("战队")])])])])
+}]}
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["mui"] = __webpack_require__(7);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+
+/***/ }),
+
+/***/ 69:
+/***/ (function(module, exports, __webpack_require__) {
+
+
+/* styles */
+__webpack_require__(188)
+
+var Component = __webpack_require__(8)(
+  /* script */
+  __webpack_require__(103),
+  /* template */
+  __webpack_require__(236),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+
+module.exports = Component.exports
+
+
+/***/ }),
+
+/***/ 7:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -8165,141 +8314,7 @@ Function.prototype.bind = Function.prototype.bind || function (to) {
     });
 })(mui);
 
-/***/ }),
-
-/***/ 41:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_vue__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__app_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_assets_css_public_css__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_assets_css_public_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_assets_css_public_css__);
-
-
-
-
-__WEBPACK_IMPORTED_MODULE_0_vue__["a" /* default */].config.productionTip = false;
-new __WEBPACK_IMPORTED_MODULE_0_vue__["a" /* default */]({
-    el: '#app',
-    render: function render(h) {
-        return h(__WEBPACK_IMPORTED_MODULE_1__app_vue___default.a);
-    }
-});
-
-/***/ }),
-
-/***/ 5:
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["mui"] = __webpack_require__(4);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
-
-/***/ }),
-
-/***/ 53:
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ 6:
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ 63:
-/***/ (function(module, exports) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _vm._m(0)
-},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('header', {
-    staticClass: "mui-bar mui-bar-nav"
-  }, [_c('a', {
-    staticClass: "mui-icon mui-icon-search mui-pull-right",
-    attrs: {
-      "id": "search_btn"
-    }
-  }), _vm._v(" "), _c('a', {
-    staticClass: "mui-icon mui-icon-gear-filled mui-pull-right",
-    attrs: {
-      "id": "setting"
-    }
-  }), _vm._v(" "), _c('a', {
-    staticClass: "mui-icon mui-pull-right creat_team",
-    attrs: {
-      "id": "creat_team_btn"
-    }
-  }, [_vm._v("创建战队")]), _vm._v(" "), _c('h1', {
-    staticClass: "mui-title",
-    attrs: {
-      "id": "title"
-    }
-  }, [_vm._v("个人中心")])]), _vm._v(" "), _c('nav', {
-    staticClass: "mui-bar mui-bar-tab"
-  }, [_c('a', {
-    staticClass: "mui-tab-item",
-    attrs: {
-      "href": "msg.html"
-    }
-  }, [_c('span', {
-    staticClass: "gaoqi-icon gaoqi-icon-msg",
-    staticStyle: {
-      "top": "5px"
-    }
-  }, [_c('span', {
-    staticClass: "mui-badge mui-badge-danger"
-  })]), _vm._v(" "), _c('span', {
-    staticClass: "mui-tab-label"
-  }, [_vm._v("消息")])]), _vm._v(" "), _c('a', {
-    staticClass: "mui-tab-item",
-    attrs: {
-      "href": "friend.html"
-    }
-  }, [_c('span', {
-    staticClass: "gaoqi-icon gaoqi-icon-hb"
-  }), _vm._v(" "), _c('span', {
-    staticClass: "mui-tab-label"
-  }, [_vm._v("伙伴")])]), _vm._v(" "), _c('a', {
-    staticClass: "mui-tab-item mui-active",
-    attrs: {
-      "id": "defaultTab",
-      "href": "user_private.html"
-    }
-  }, [_c('span', {
-    staticClass: "gaoqi-icon gaoqi-icon-me"
-  }), _vm._v(" "), _c('span', {
-    staticClass: "mui-tab-label"
-  }, [_vm._v("我的")])]), _vm._v(" "), _c('a', {
-    staticClass: "mui-tab-item",
-    attrs: {
-      "href": "match.html"
-    }
-  }, [_c('span', {
-    staticClass: "gaoqi-icon gaoqi-icon-ss"
-  }), _vm._v(" "), _c('span', {
-    staticClass: "mui-tab-label"
-  }, [_vm._v("赛事")])]), _vm._v(" "), _c('a', {
-    staticClass: "mui-tab-item",
-    attrs: {
-      "href": "team.html"
-    }
-  }, [_c('span', {
-    staticClass: "gaoqi-icon gaoqi-icon-zd"
-  }), _vm._v(" "), _c('span', {
-    staticClass: "mui-tab-label"
-  }, [_vm._v("战队")])])])])
-}]}
-
 /***/ })
 
-},[41]);
+},[138]);
 //# sourceMappingURL=index.js.map

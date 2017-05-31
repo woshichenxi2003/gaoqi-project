@@ -40,7 +40,7 @@
 </template>
 
 <script>
-require("expose-loader?mui!assets/js/mui.js");
+require("expose-loader?mui!assets/js/mui.min.js");
 require("expose-loader?enterfocus!assets/js/mui.enterfocus.js");
 import { app } from 'assets/js/appp.js'
 mui.init();

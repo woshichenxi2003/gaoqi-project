@@ -1,0 +1,254 @@
+.mui-card {
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+    margin: 0px;
+    border-radius: 0px;
+    background-color: #fff;
+    background-clip: padding-box;
+    box-shadow: 0 0px 0px rgba(0, 0, 0, 0)
+}
+
+.mui-table-view-cell:after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0px;
+    height: 1px;
+    content: '';
+    -webkit-transform: scaleY(.5);
+    transform: scaleY(.5);
+    background-color: #c8c7cc
+}
+
+ul,
+li {
+    list-style: none;
+}
+
+.slider_box .mui-slider {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    width: 100%;
+    padding: 20px 0 40px;
+}
+
+.slider_box .mui-slider .mui-segmented-control.mui-segmented-control-inverted .mui-control-item.mui-active {
+    border-bottom: 0
+}
+
+.slider_box .mui-slider .mui-segmented-control.mui-segmented-control-inverted~.mui-slider-group .mui-slider-item {
+    border-top: 1px solid #c8c7cc;
+    border-bottom: 1px solid #c8c7cc
+}
+
+.slider_box .mui-slider .mui-slider-group {
+    font-size: 0;
+    position: relative;
+    -webkit-transition: all 0s linear;
+    transition: all 0s linear;
+    white-space: nowrap
+}
+
+.slider_box .mui-slider .mui-slider-group .mui-slider-item {
+    font-size: 14px;
+    position: relative;
+    display: inline-block;
+    padding-left: 10px;
+    width: 100%;
+    height: 100%;
+    vertical-align: top;
+    white-space: normal;
+    text-align: justify;
+    text-align-last: justify;
+    font-size: 0;
+    letter-spacing: -3px;
+}
+
+.slider_box .mui-slider .mui-slider-group .mui-slider-item>a:not(.mui-control-item) {
+    line-height: 0;
+    position: relative;
+    display: block
+}
+
+.slider_box .mui-slider .mui-slider-group .mui-slider-item img {
+    width: 100%
+}
+
+.slider_box .mui-slider .mui-slider-group .mui-slider-item .mui-table-view:after,
+.slider_box .mui-slider .mui-slider-group .mui-slider-item .mui-table-view:before {
+    height: 0
+}
+
+.slider_box .mui-slider .mui-slider-group.mui-slider-loop {
+    -webkit-transform: translate(-100%, 0);
+    transform: translate(-100%, 0)
+}
+
+.slider_box .mui-slider-title {
+    line-height: 30px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    margin: 0;
+    text-align: left;
+    text-indent: 12px;
+    opacity: .8;
+    background-color: #000
+}
+
+.slider_box .mui-slider-indicator {
+    position: absolute;
+    bottom: 8px;
+    width: 100%;
+    text-align: center;
+    background: 0 0
+}
+
+.slider_box .mui-slider-indicator.mui-segmented-control {
+    position: relative;
+    bottom: auto
+}
+
+.slider_box .mui-slider-indicator .mui-indicator {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin: 1px 6px;
+    cursor: pointer;
+    border-radius: 50%;
+    background: #aaa;
+    -webkit-box-shadow: 0 0 1px 1px rgba(130, 130, 130, .7);
+    box-shadow: 0 0 1px 1px rgba(130, 130, 130, .7)
+}
+
+.slider_box .mui-slider-indicator .mui-active.mui-indicator {
+    background: #fff
+}
+
+.slider_box .team_logo_box {
+    width: 70px !important;
+    display: inline-block;
+    /*float: left;*/
+    position: relative;
+    /*margin: 0 5px;*/
+    letter-spacing: 0;
+}
+
+.slider_box .team_logo_box .team_games {
+    position: absolute;
+    color: #fc4e3e;
+    bottom: -15px;
+    right: 9px;
+}
+
+.slider_box .team_logo_box .team_games span {
+    display: inline-block;
+    width: 20px;
+    height: 25px;
+}
+
+.slider_box .team_logo_box .team_games span.dota {
+    background: url(../img/iconall_05.png) no-repeat;
+    background-size: auto 100%;
+}
+
+.slider_box .team_logo_box .team_games span.lol {
+    background: url(../img/iconall_03.png) no-repeat;
+    background-size: auto 100%;
+}
+
+.slider_box .team_logo_box .team_games span.fengbao {
+    background: url(../img/iconall_09.png) no-repeat;
+    background-size: auto 100%;
+}
+
+.slider_box .team_logo_box .team_games span.csgo {
+    background: url(../img/iconall_07.png) no-repeat;
+    background-size: auto 100%;
+}
+
+.slider_box .team_logo_box .team_logo {
+    width: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    height: 60px;
+    background: url(../img/team_logo_03.jpg) no-repeat center center;
+    background-size: 100% auto;
+}
+
+.slider_box .team_logo_box .team_logo img {
+    width: 100%;
+    height: 100%;
+}
+
+.mui-bar-footer {
+    bottom: 0;
+    background: #fc3e3e;
+    transition: all 0.5 linear;
+}
+
+.mui-bar {
+    position: fixed;
+    z-index: 10;
+    right: 0;
+    left: 0;
+    height: 44px;
+    padding-right: 0px;
+    padding-left: 0px;
+    border-bottom: 0;
+    background-color: #f7f7f7;
+    -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, .85);
+    box-shadow: 0 0 1px rgba(0, 0, 0, .85);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+.mui-bar-footer .mui-btn-hong-creat {
+    width: 100%;
+    line-height: 20px;
+    position: relative;
+}
+
+.mui-bar-footer .mui-btn-hong-creat .ts {
+    display: block;
+    position: absolute;
+    right: 10%;
+    top: 5px;
+    width: 29px;
+    /*background: url(images/tousu_22.png) no-repeat;*/
+}
+
+.mui-bar-footer .mui-btn-hong-creat .ts img {
+    width: 100%;
+    height: 100%;
+}
+
+.mui-btn-hong-creat .btn_title {
+    height: 27px;
+    line-height: 27px;
+}
+
+.blink {
+    -webkit-animation: neon1 1.5s ease-in-out infinite alternate;
+    -moz-animation: neon1 1.5s ease-in-out infinite alternate;
+    animation: neon1 1.5s ease-in-out infinite alternate;
+}
+
+.mui-btn-hong-creat p {
+    color: #fff;
+    font-size: 12px;
+    line-height: 12px;
+}
+
+@-webkit-keyframes neon1 {
+    from {
+        text-shadow: 0 0 1px #fff, 0 0 5px #fff;
+    }
+    to {
+        text-shadow: 0 0 10px #FF1177, 0 0 25px #FF1177;
+    }
+}

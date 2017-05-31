@@ -59,8 +59,14 @@ mui.plusReady(function () {
             mui.extend(aniShow, temp);
         }
         self.append(sub);
-    }
-    ;
+    };
+    //接收登陆页面加载的事件 然后通知各子页面刷新
+    window.addEventListener('showall',function(event){
+        console.log('获得首页的事件');
+        var user_private = plus.webview.getWebviewById('user_private.html');
+        mui.fire(user_private,'refresh',null);
+    });
+
     btnArray[0].style.display = 'none';
     btnArray[1].style.display = 'block';
     btnArray[2].style.display = 'none';
@@ -88,11 +94,11 @@ mui.plusReady(function () {
         //更换标题
         title.innerHTML = this.querySelector('.mui-tab-label').innerHTML;
         //更换右上角搜索 创建战队 设置的按钮
-        if (targetTab === 'html/team.html') {
+        if (targetTab === 'team.html') {
             btnArray[0].style.display = 'block';
             btnArray[1].style.display = 'none';
             btnArray[2].style.display = 'block';
-        } else if (targetTab === 'html/user_private.html') {
+        } else if (targetTab === 'user_private.html') {
             btnArray[0].style.display = 'none';
             btnArray[1].style.display = 'block';
             btnArray[2].style.display = 'none';
@@ -149,6 +155,22 @@ mui.plusReady(function () {
         }, 1000);
         return false;
     };
+    //进入创建战队页面
+     mui('.mui-bar').on('tap', '.creat_team', function (e) {
+        mui.openWindow({
+            url: "creat_team.html",
+            id: "creat_team.html",
+            preload: true,
+        })
+    });
+    mui('.mui-bar').on('tap', '.mui-icon-search', function (e) {
+        mui.openWindow({
+            url: "search.html",
+            id: "search.html",
+            preload: true,
+        })
+    });
+
 
     //增加首页刷新时间
 });

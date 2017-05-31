@@ -1,4 +1,4 @@
-webpackJsonp([3],{
+webpackJsonp([22],{
 
 /***/ 0:
 /***/ (function(module, exports, __webpack_require__) {
@@ -14,35 +14,446 @@ module.exports = __webpack_require__.p + "assets/img/team_logo_03.jpg";
 
 /***/ }),
 
-/***/ 24:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ 10:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return app; });
+/**
+ * 演示程序当前的 “注册/登录” 等操作，是基于 “本地存储” 完成的
+ * 当您要参考这个演示程序进行相关 app 的开发时，
+ * 请注意将相关方法调整成 “基于服务端Service” 的实现。
+ **/
+/**
+ * 用户登录
+ **/
+var app = {};
+app.login = function (loginInfo, callback) {
+    callback = callback || $.noop;
+    loginInfo = loginInfo || {};
+    loginInfo.mobile = loginInfo.mobile || '';
+    loginInfo.password = loginInfo.password || '';
+    /************************************************************************/
+    /*加入手机信息                                                           */
+    /************************************************************************/
+    loginInfo.device = plus.device.vendor || ''; //生产厂家
+    loginInfo.model = plus.device.model || ''; //设备名称
+    loginInfo.screen = plus.screen.resolutionWidth + ',' + plus.screen.resolutionHeight || ''; //分辨率
+    loginInfo.sys = plus.os.name || ''; //系统类型
+    loginInfo.version = plus.os.version || ''; //系统版本
+    loginInfo.no = plus.device.uuid || ''; //设备id
+    /************************************************************************/
+    /*验证手机号不为空                             */
+    /************************************************************************/
+    var phonereg = /^$/;
+    if (phonereg.test(loginInfo.mobile)) {
+        return callback('请输入手机号码');
+    }
+    /************************************************************************/
+    /*验证密码不为空                            */
+    /************************************************************************/
+    var passwordreg = /^$/;
+    if (passwordreg.test(loginInfo.password)) {
+        return callback('请输入密码');
+    }
+    /************************************************************************/
+    /*验证完成后发送ajax请求                              */
+    /************************************************************************/
+    mui.ajax('https://api.gaoqi.cespc.com:9378/user/login', {
+        data: loginInfo,
+        dataType: 'json', //服务器返回json格式数据
+        type: 'post', //HTTP请求类型
+        timeout: 10000, //超时时间设置为10秒；
+        success: function success(data) {
+            if (data.ret == 1) {
+                var obj = {};
+                obj.ticket = data.ticket;
+                obj.expire_timestamp = data.expire_timestamp;
+                obj.user = data.user;
+                app.setState(obj); //存入注册信息到本地
+                app.setAllReginfo(obj); //将信息存贮到本地 防止未完善信息的用户进入 需完善信息时使用
+                // app.setReginfo('ticket', obj.ticket); 
+                // app.setReginfo('expire_timestamp', obj.expire_timestamp);
+                // app.setReginfo('user', obj.user);
+                console.log('与后台交互了');
+                //这里需要添加如果用户的返回值是未完善跳转到完善信息页面
+                return callback();
+            } else {
+                callback(data.err);
+            }
+        },
+        error: function error(xhr, type, errorThrown) {
+            //异常处理；
+            if (type == 'timeout') {
+                plus.nativeUI.toast('请求超时，请你检查您的网络');
+            } else if (type == 'abort') {
+                plus.nativeUI.toast('请检查您的网络是否链接');
+            } else if (type == 'timeout') {
+                plus.nativeUI.toast('服务器错误');
+            }
+            console.log(type);
+        }
+    });
+};
 
-/* styles */
-__webpack_require__(56)
+/**
+ * 新用户注册
+ **/
+app.reg = function (regInfo, callback) {
+    callback = callback || $.noop;
+    regInfo = regInfo || {};
+    regInfo.mobile = regInfo.mobile || '';
+    regInfo.password = regInfo.password || '';
+    /************************************************************************/
+    /*加入手机信息                                                           */
+    /************************************************************************/
+    regInfo.device = plus.device.vendor || ''; //生产厂家
+    regInfo.model = plus.device.model || ''; //设备名称
+    regInfo.screen = plus.screen.resolutionWidth + ',' + plus.screen.resolutionHeight || ''; //分辨率
+    regInfo.sys = plus.os.name || ''; //系统类型
+    regInfo.version = plus.os.version || ''; //系统版本
+    regInfo.no = plus.device.uuid || ''; //设备id
+    /************************************************************************/
+    /*验证手机号不为空                              */
+    /************************************************************************/
+    var noNull = /^$/;
+    if (noNull.test(regInfo.mobile)) {
+        return callback('请输入手机号码');
+    }
+    /************************************************************************/
+    /*验证密码不为空                              */
+    /************************************************************************/
+    if (noNull.test(regInfo.password)) {
+        return callback('密码不能为空');
+    }
+    /************************************************************************/
+    /*验证验证码不为空                              */
+    /************************************************************************/
+    if (noNull.test(regInfo.code)) {
+        return callback('请输入验证码');
+    }
 
-var Component = __webpack_require__(8)(
-  /* script */
-  __webpack_require__(31),
-  /* template */
-  __webpack_require__(66),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
+    mui.ajax('https://api.gaoqi.cespc.com:9378/user/register', {
+        data: regInfo,
+        dataType: 'json', //服务器返回json格式数据
+        type: 'post', //HTTP请求类型
+        timeout: 10000, //超时时间设置为10秒；
+        success: function success(data) {
+            if (data.ret == 1) {
+                console.log('注册提交成功');
+                // var obj = {}; 注册时不将用户信息存储在本地用户信息中 用户下次登录不会直接登录上次的信息
+                // obj.ticket = data.ticket;
+                // obj.expire_timestamp = data.expire_timestamp;
+                // obj.user = data.user;
+                // app.setState(obj);
+                console.log(JSON.stringify(data));
+                app.setReginfo('ticket', data.ticket); //将用户信息存贮到本地 下一步注册只用
+                app.setReginfo('expire_timestamp', data.expire_timestamp);
+                app.setReginfo('user', data.user);
+                console.log(JSON.stringify(app.getReginfo()));
+                console.log('ticket user expire_timestamp 已经添加');
+                return callback();
+            } else {
+                /*如果用户已经注册 用户返回登录页面*/
+                if (data.ret == '20204' || data.ret == 20204) {
+                    return callback(data.ret);
+                }
+                callback(data.err);
+            }
+        },
+        error: function error(xhr, type, errorThrown) {
+            //异常处理；
+            if (type == 'timeout') {
+                plus.nativeUI.toast('请求超时，请你检查您的网络');
+            } else if (type == 'abort') {
+                plus.nativeUI.toast('请检查您的网络是否链接');
+            } else if (type == 'timeout') {
+                plus.nativeUI.toast('服务器错误');
+            }
+            console.log(type);
+        }
+    });
+    //注册后如果返回值是20204 用户已经登录过 清空本地用户数据（避免进入登录页面后用户自动登录） 跳转登录页面 登录页面再判断用户是不是完善了喜欢游戏等个人的信息
+};
 
-module.exports = Component.exports
+/**
+ * 验证用户个人信息
+ **/
+app.info = function (loginInfo, callback) {
+    callback = callback || $.noop;
+    loginInfo = loginInfo || {};
+    /************************************************************************/
+    /*验证昵称不能为空                                                        */
+    /************************************************************************/
+    var phonereg = /^$/;
+    if (phonereg.test(loginInfo.nickname)) {
+        return callback('请输入昵称');
+    }
+
+    /************************************************************************/
+    /*验证性别不为空                            */
+    /************************************************************************/
+    var passwordreg = /^$/;
+    if (passwordreg.test(loginInfo.gender)) {
+        return callback('请选择性别');
+    }
+    /************************************************************************/
+    /*验证所在地不为空                            */
+    /************************************************************************/
+    var passwordreg = /^$/;
+    if (passwordreg.test(loginInfo.provinceid)) {
+        return callback('请选择所在地域');
+    }
+    //存储用个人信息在本地，不发送ajax请求，待选择完游戏后一起发送
+    app.setAllReginfolin(loginInfo); //临时存贮信息，下一个选择游戏表单合并数据后后台提交信息之用
+    return callback();
+};
+/************************************************************************/
+/*用户选择游戏项目完成注册                              */
+/************************************************************************/
+app.selectgame = function (loginInfo, callback) {
+    callback = callback || $.noop;
+    loginInfo = loginInfo || {};
+    /*验证用户至少选择了一个游戏项目*/
+    if (loginInfo.games == '') {
+        return callback('请选择您喜欢的游戏项目');
+    };
+    mui.ajax('https://api.gaoqi.cespc.com:9378/user/info/edit', {
+        data: loginInfo,
+        dataType: 'json', //服务器返回json格式数据
+        type: 'post', //HTTP请求类型
+        timeout: 10000, //超时时间设置为10秒；
+        success: function success(data) {
+            if (data.ret == 1) {
+                console.log('用户已经完善了用户信息，并提交信息成功');
+                var obj = app.getReginfo();
+                obj.user = data.user;
+                console.log(JSON.stringify(data.user));
+                app.setState(obj); //设置将用户信息存储在本地
+                console.log(JSON.stringify(app.getReginfo()));
+                app.setAllReginfo(null); //清空本地用户注册信息
+                console.log(JSON.stringify(app.getState()));
+                return callback();
+            } else {
+                callback(data.err);
+            }
+        },
+        error: function error(xhr, type, errorThrown) {
+            //异常处理；
+            if (type == 'timeout') {
+                plus.nativeUI.toast('请求超时，请你检查您的网络');
+            } else if (type == 'abort') {
+                plus.nativeUI.toast('请检查您的网络是否链接');
+            } else if (type == 'timeout') {
+                plus.nativeUI.toast('服务器错误');
+            }
+            console.log(type);
+        }
+    });
+};
+/**
+ * 获取当前登录信息
+ **/
+app.getState = function () {
+    //var stateText = localStorage.getItem('$state') || "{}";
+    var stateText = plus.storage.getItem('$state') || "{}";
+    return JSON.parse(stateText);
+};
+
+/**
+ * 存储当前的登录信息
+ **/
+app.setState = function (state) {
+    var state = state || {};
+    //localStorage.setItem('$state', JSON.stringify(state));
+    plus.storage.setItem('$state', JSON.stringify(state));
+};
+
+/**
+ * 获得注册信息
+ **/
+
+app.getReginfo = function () {
+    var stateText = plus.storage.getItem('$reginfo') || "{}";
+    return JSON.parse(stateText);
+    //除了用户头像单独存储 其余都是存储在注册信息中 头像最后加入到注册信息中 发送给服务器。
+};
+
+/**
+ * 逐条添加注册信息到本地
+ **/
+app.setReginfo = function (name, value) {
+    var reginfo = app.getReginfo() || {};
+    reginfo[name] = value;
+    plus.storage.setItem('$reginfo', JSON.stringify(reginfo));
+};
+/**
+ * 一次性添加注册信息到本地
+ **/
+app.setAllReginfo = function (value) {
+    var reginfo = value || {};
+    plus.storage.setItem('$reginfo', JSON.stringify(reginfo));
+};
+
+/**
+ * 获得info临时位置的值
+ **/
+app.getReginfolin = function () {
+    var stateText = plus.storage.getItem('$reginfolin') || "{}";
+    return JSON.parse(stateText);
+    //除了用户头像单独存储 其余都是存储在注册信息中 头像最后加入到注册信息中 发送给服务器。
+};
+
+/**
+ * 逐条添加注册信息到本地
+ **/
+app.setReginfolin = function (name, value) {
+    var reginfo = app.getReginfolin() || {};
+    reginfo[name] = value;
+    plus.storage.setItem('$reginfolin', JSON.stringify(reginfo));
+};
+/**
+ * 将info的信息存贮到临时位置
+ **/
+app.setAllReginfolin = function (value) {
+    var reginfo = value || {};
+    plus.storage.setItem('$reginfolin', JSON.stringify(reginfo));
+};
+
+var checkEmail = function checkEmail(email) {
+    email = email || '';
+    return email.length > 3 && email.indexOf('@') > -1;
+};
+
+/**
+ * 找回密码
+ **/
+app.forgetPassword = function (email, callback) {
+    callback = callback || $.noop;
+    if (!checkEmail(email)) {
+        return callback('邮箱地址不合法');
+    }
+    return callback(null, '新的随机密码已经发送到您的邮箱，请查收邮件。');
+};
+
+/**
+ * 设置应用本地配置
+ **/
+app.setSettings = function (settings) {
+    settings = settings || {};
+    localStorage.setItem('$settings', JSON.stringify(settings));
+};
+
+/**
+ * 获得应用本地配置
+ **/
+app.getSettings = function () {
+
+    var settingsText = localStorage.getItem('$settings') || "{}";
+    console.log(settingsText);
+    return JSON.parse(settingsText);
+};
+/**
+ * 获取本地是否安装客户端
+ **/
+app.isInstalled = function (id) {
+    if (id === 'qihoo' && mui.os.plus) {
+        return true;
+    }
+    if (mui.os.android) {
+        var main = plus.android.runtimeMainActivity();
+        var packageManager = main.getPackageManager();
+        var PackageManager = plus.android.importClass(packageManager);
+        var packageName = {
+            "qq": "com.tencent.mobileqq",
+            "weixin": "com.tencent.mm",
+            "sinaweibo": "com.sina.weibo"
+        };
+        try {
+            return packageManager.getPackageInfo(packageName[id], PackageManager.GET_ACTIVITIES);
+        } catch (e) {}
+    } else {
+        switch (id) {
+            case "qq":
+                var TencentOAuth = plus.ios.import("TencentOAuth");
+                return TencentOAuth.iphoneQQInstalled();
+            case "weixin":
+                var WXApi = plus.ios.import("WXApi");
+                return WXApi.isWXAppInstalled();
+            case "sinaweibo":
+                var SinaAPI = plus.ios.import("WeiboSDK");
+                return SinaAPI.isWeiboAppInstalled();
+            default:
+                break;
+        }
+    }
+};
+/************************************************************************/
+/*生成验证码                                                             */
+/************************************************************************/
+app.getverificationCode = function (phonenum, callback) {
+    console.log('进入验证码发送程序');
+    console.log(phonenum);
+    mui.ajax('https://api.gaoqi.cespc.com:9378/user/register/sendsms', {
+        data: {
+            'mobile': phonenum
+        },
+        dataType: 'json', //服务器返回json格式数据
+        type: 'post', //HTTP请求类型
+        timeout: 10000, //超时时间设置为10秒；
+        success: function success(data) {
+            if (data.ret == 1) {
+                console.log('验证码已发送到后台');
+                return callback();
+            } else {
+                return callback(data.err);
+            }
+        },
+        error: function error(xhr, type, errorThrown) {
+            //异常处理；
+            if (type === 'timeout') {
+                plus.nativeUI.toast('请求超时，请你检查您的网络');
+            } else if (type === 'abort') {
+                plus.nativeUI.toast('请检查您的网络是否链接');
+            } else if (type === 'timeout') {
+                plus.nativeUI.toast('服务器错误');
+            }
+        }
+    });
+};
+app.gotoLogView = function () {
+    app.setState(null); //清空用户信息，防止用户自动登录
+    mui.openWindow({
+        // url: plus.webview.getWebviewById(plus.runtime.appid).getURL(), //获取默认首页的地址
+        // id: plus.webview.getWebviewById(plus.runtime.appid), //获取首页的id
+        url: 'login.html',
+        id: 'login.html',
+        preload: true,
+        show: {
+            aniShow: 'pop-in'
+        },
+        styles: {
+            popGesture: 'hide'
+        },
+        waiting: {
+            autoShow: false
+        },
+        extras: { //附带参数让登录页面不再验证main是否加载完成
+            main_loaded: 'true'
+        }
+    });
+};
 
 
 /***/ }),
 
-/***/ 31:
+/***/ 127:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_assets_js_appp_js__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_assets_js_appp_js__ = __webpack_require__(10);
+//
 //
 //
 //
@@ -680,10 +1091,144 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 
-__webpack_require__(5);
+__webpack_require__(6);
+
+var myData = {
+    "uid": "4",
+    "is_perfect": "1",
+    "nickname": "13811111111",
+    "signature": "杀啊！！！！！",
+    "gender": "n",
+    "province": "",
+    "city": "",
+    "area": "",
+    "games": "dota2,csgo,hots",
+    "allow_login": "yes",
+    "allow_race_events": "yes",
+    "allow_formal_events": "yes",
+    "avatar_big": "http://uploads.gaoqi.com/avatar/2016/1109/4_20161109070448149_big.jpg",
+    "avatar_middle": "http://uploads.gaoqi.com/avatar/2016/1109/4_20161109070448149_middle.jpg",
+    "avatar_small": "http://uploads.gaoqi.com/avatar/2016/1109/4_20161109070448149_small.jpg",
+    "avatar_origin": "http://uploads.gaoqi.com/default/avatar_big.png",
+    "realname": "王月坡",
+    "idno": "111225648956321",
+    "id_front": "",
+    "id_back": null,
+    "certification": "no",
+    "alipay_account": null,
+    "wechat_account": null,
+    "live_platform": "yy",
+    "liveid": "121212",
+    "update_at": "2016-11-10 02:21:51",
+    "mobile": "13811111111",
+    "game_info": {
+        "dota2": {
+            "game": "dota2",
+            "game_name": "DOTA2",
+            "logo_big": "http://uploads.gaoqi.cespc.com/default/dota2.png",
+            "logo_middle": "http://uploads.gaoqi.cespc.com/default/dota2.png",
+            "logo_small": "http://uploads.gaoqi.cespc.com/default/dota2.png",
+            "abstract": "DOTA2",
+            "team": "5",
+            "create_at": "2016-11-09 03:04:02"
+        },
+        "csgo": {
+            "game": "csgo",
+            "game_name": "CS:GO",
+            "logo_big": "http://uploads.gaoqi.cespc.com/default/csgo.png",
+            "logo_middle": "http://uploads.gaoqi.cespc.com/default/csgo.png",
+            "logo_small": "http://uploads.gaoqi.cespc.com/default/csgo.png",
+            "abstract": "CS:GO",
+            "team": "5",
+            "create_at": "2016-11-09 03:05:26"
+        },
+        "hots": {
+            "game": "hots",
+            "game_name": "风暴英雄",
+            "logo_big": "http://uploads.gaoqi.cespc.com/default/hots.png",
+            "logo_middle": "http://uploads.gaoqi.cespc.com/default/hots.png",
+            "logo_small": "http://uploads.gaoqi.cespc.com/default/hots.png",
+            "abstract": "风暴英雄",
+            "team": "5",
+            "create_at": "2016-11-09 03:05:57"
+        }
+    },
+    "live_info": {
+        "platform": "yy",
+        "platform_name": "YY直播",
+        "logo_big": "1",
+        "logo_middle": "1",
+        "logo_small": "1",
+        "host": "http://www.yy.com/",
+        "live_url": "http://www.yy.com/121212",
+        "abstract": "YY直播",
+        "create_at": "2016-11-09 05:30:19"
+    },
+    "team": [],
+    "statistics": {
+        "statistics": {
+            "uid": "4",
+            "friends": "0",
+            "events": "0",
+            "win": "0",
+            "lose": "0",
+            "draw": "0",
+            "waiver": "0",
+            "point": "345",
+            "ob_point": "0",
+            "rate": "0%"
+        },
+        "games": {
+            "dota2": {
+                "id": "7",
+                "game": "csgo",
+                "events": "0",
+                "win": "0",
+                "lose": "0",
+                "draw": "0",
+                "waiver": "0",
+                "point": "115",
+                "ob_point": "0",
+                "rate": "0%"
+            },
+            "csgo": {
+                "id": "7",
+                "game": "csgo",
+                "events": "0",
+                "win": "0",
+                "lose": "0",
+                "draw": "0",
+                "waiver": "0",
+                "point": "115",
+                "ob_point": "0",
+                "rate": "0%"
+            },
+            "hots": {
+                "id": "7",
+                "game": "csgo",
+                "events": "0",
+                "win": "0",
+                "lose": "0",
+                "draw": "0",
+                "waiver": "0",
+                "point": "115",
+                "ob_point": "0",
+                "rate": "0%"
+            }
+        }
+    }
+};
 
 mui.init();
 mui.plusReady(function () {
+    function getData() {
+        mui.extend(myData, __WEBPACK_IMPORTED_MODULE_0_assets_js_appp_js__["a" /* app */].getState().user);
+    };
+    getData();
+    window.addEventListener('refresh', function (event) {
+        console.log('个人首页的信息更新触发了');
+        getData(); //注册刷新用户信息的页面
+    });
     var cteate_btn = document.getElementById('cteate_btn');
     mui('.mui-segmented-control1').on('tap', '.mui-control-item1', function () {
         var index = this.getAttribute('index') - 0;
@@ -702,7 +1247,7 @@ mui.plusReady(function () {
     });
     mui('.mui-bar-footer').on('tap', '.mui-btn-hong-creat', function () {
         mui.openWindow({
-            url: "../create_lianxi_match.html",
+            url: "create_lianxi_match.html",
             id: "create_lianxi_match.html",
             preload: true
 
@@ -710,11 +1255,768 @@ mui.plusReady(function () {
     });
 });
 
-/* harmony default export */ __webpack_exports__["default"] = ({});
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return myData;
+    }
+});
 
 /***/ }),
 
-/***/ 4:
+/***/ 162:
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_vue__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__app_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_assets_css_public_css__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_assets_css_public_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_assets_css_public_css__);
+
+
+
+
+__WEBPACK_IMPORTED_MODULE_0_vue___default.a.config.productionTip = false;
+new __WEBPACK_IMPORTED_MODULE_0_vue___default.a({
+    el: '#app',
+    render: function render(h) {
+        return h(__WEBPACK_IMPORTED_MODULE_1__app_vue___default.a);
+    }
+});
+
+/***/ }),
+
+/***/ 195:
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+
+/***/ 243:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', [_vm._m(0), _vm._v(" "), _c('div', {
+    staticClass: "mui-content",
+    attrs: {
+      "id": "pullrefresh"
+    }
+  }, [_c('div', {
+    staticClass: "user_info"
+  }, [_c('div', {
+    staticClass: "user_info_face"
+  }, [_c('div', {
+    attrs: {
+      "id": "face"
+    }
+  }, [_c('img', {
+    attrs: {
+      "src": _vm.avatar_big,
+      "alt": ""
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "manifesto mui-ellipsis"
+  }, [_vm._v("\n                " + _vm._s(_vm.signature) + "\n            ")]), _vm._v(" "), _c('div', {
+    staticClass: "user_info_msg"
+  }, [_c('div', {
+    staticClass: "user_name mui-pull-left"
+  }, [_c('p', {
+    attrs: {
+      "id": "userId"
+    }
+  }, [_vm._v("ID:" + _vm._s('00000' + _vm.uid))]), _vm._v(" "), _c('p', {
+    staticClass: "fontweight mui-ellipsis",
+    attrs: {
+      "id": "userName"
+    }
+  }, [_vm._v(_vm._s(_vm.nickname))])]), _vm._v(" "), _c('div', {
+    staticClass: "user_gamenum mui-pull-left"
+  }, [_c('p', [_vm._v("参赛场数")]), _vm._v(" "), _c('p', {
+    staticClass: "fontweight",
+    attrs: {
+      "id": "matchNum"
+    }
+  }, [_vm._v(_vm._s(_vm.statistics.statistics.events))])]), _vm._v(" "), _c('div', {
+    staticClass: "user_odds mui-pull-left"
+  }, [_c('p', [_vm._v("胜率")]), _vm._v(" "), _c('p', {
+    staticClass: "fontweight",
+    attrs: {
+      "id": "winRate"
+    }
+  }, [_vm._v(_vm._s(_vm.statistics.statistics.rate))])])]), _vm._v(" "), _c('div', {
+    attrs: {
+      "id": "like_game"
+    }
+  }, [(_vm.statistics.games.dota2) ? _c('span', {
+    staticClass: "dota"
+  }) : _vm._e(), _vm._v(" "), (_vm.statistics.games.lol) ? _c('span', {
+    staticClass: "lol"
+  }) : _vm._e(), _vm._v(" "), (_vm.statistics.games.hots) ? _c('span', {
+    staticClass: "fengbao"
+  }) : _vm._e(), _vm._v(" "), (_vm.statistics.games.csgo) ? _c('span', {
+    staticClass: "csgo"
+  }) : _vm._e()]), _vm._v(" "), _c('div', {
+    staticClass: "combat_values"
+  }, [_vm._v("\n                " + _vm._s(_vm.statistics.statistics.point) + "\n            ")])]), _vm._v(" "), _vm._m(1)])])
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('footer', {
+    staticClass: "mui-bar mui-bar-footer",
+    attrs: {
+      "id": "cteate_btn"
+    }
+  }, [_c('button', {
+    staticClass: "mui-btn mui-btn-hong-creat",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("创建练习赛")])])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "con"
+  }, [_c('div', {
+    staticClass: "mui-segmented-control1"
+  }, [_c('a', {
+    staticClass: "mui-control-item1 mui-active",
+    attrs: {
+      "index": "0"
+    }
+  }, [_vm._v("\n                    我是选手\n                ")]), _vm._v(" "), _c('a', {
+    staticClass: "mui-control-item1",
+    attrs: {
+      "index": "1"
+    }
+  }, [_vm._v("\n                    我是OB\n                ")])]), _vm._v(" "), _c('div', {
+    staticClass: "display_box"
+  }, [_c('div', {
+    staticClass: "mui-control-content1 active"
+  }, [_c('div', {
+    staticClass: "show_module"
+  }, [_c('div', {
+    staticClass: "module_title"
+  }, [_vm._v("我的战队")]), _vm._v(" "), _c('div', {
+    staticClass: "module_con"
+  }, [_c('div', {
+    staticClass: "emptyToPlay"
+  }, [_c('span', {
+    staticClass: "empty_logo"
+  }, [_vm._v(" ")]), _vm._v(" "), _c('div', {
+    staticClass: "ss"
+  }, [_vm._v("无战队,请\n                                    "), _c('button', {
+    staticClass: "mui-btn mui-btn-cheng-ty",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("创建战队")]), _vm._v(" 或\n                                    "), _c('button', {
+    staticClass: "mui-btn mui-btn-green-jujue",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("加入其它战队")])]), _vm._v(" "), _c('p', [_vm._v("(每个用户一个游戏项目只能创建或者加入一个战队)")])])])]), _vm._v(" "), _c('div', {
+    staticClass: "show_module"
+  }, [_c('div', {
+    staticClass: "module_title"
+  }, [_vm._v("所在战队")]), _vm._v(" "), _c('div', {
+    staticClass: "module_con"
+  }, [_c('div', {
+    staticClass: "team_box"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }), _vm._v(" "), _c('div', {
+    staticClass: "team_games"
+  }, [_c('span', {
+    staticClass: "dota"
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "team_ifno"
+  }, [_c('h4', {
+    staticClass: "mui-ellipsis"
+  }, [_vm._v("Mesut Ozil")]), _vm._v(" "), _c('p', {
+    staticClass: "mui-ellipsis"
+  }, [_vm._v("小伙伴们！搞起来啊！快来啊搞起来啊！快来啊")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_effectiveness"
+  }, [_vm._v("\n                                    2341\n                                ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_btnbox"
+  }, [_c('button', {
+    staticClass: "mui-btn mui-btn-green-jujue",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("同意加入")])])]), _vm._v(" "), _c('div', {
+    staticClass: "team_box"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "team_games"
+  }, [_c('span', {
+    staticClass: "dota"
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "team_ifno"
+  }, [_c('h4', {
+    staticClass: "mui-ellipsis"
+  }, [_vm._v("Mesut Ozil")]), _vm._v(" "), _c('p', {
+    staticClass: "mui-ellipsis"
+  }, [_vm._v("小伙伴们！搞起来啊！快来啊搞起来啊！快来啊")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_effectiveness"
+  }, [_vm._v("\n                                    2341\n                                ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_btnbox"
+  }, [_c('button', {
+    staticClass: "mui-btn mui-btn-green-jujue",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("同意加入")]), _vm._v(" "), _c('button', {
+    staticClass: "mui-btn mui-btn-cheng-ty",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("拒绝邀请")])])])])]), _vm._v(" "), _c('div', {
+    staticClass: "show_module"
+  }, [_c('div', {
+    staticClass: "module_title"
+  }, [_vm._v("即将开始的比赛")]), _vm._v(" "), _c('div', {
+    staticClass: "module_con"
+  }, [_c('div', {
+    staticClass: "tostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "team_name"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "vs"
+  }, [_vm._v("vs")]), _vm._v(" "), _c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "team_name"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")])])])])])]), _vm._v(" "), _c('div', {
+    staticClass: "show_module"
+  }, [_c('div', {
+    staticClass: "module_title"
+  }, [_vm._v("近期的比赛")]), _vm._v(" "), _c('div', {
+    staticClass: "module_con"
+  }, [_c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])]), _vm._v(" "), _c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])]), _vm._v(" "), _c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])]), _vm._v(" "), _c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])]), _vm._v(" "), _c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAMETE-NAMETE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])])]), _vm._v(" "), _c('div', {
+    staticClass: "btn_box_width"
+  }, [_vm._v("\n                            查看所有比赛历史\n                        ")])])]), _vm._v(" "), _c('div', {
+    staticClass: "mui-control-content1"
+  }, [_c('div', {
+    staticClass: "show_module"
+  }, [_c('div', {
+    staticClass: "module_title"
+  }, [_vm._v("OB练习赛")]), _vm._v(" "), _c('div', {
+    staticClass: "module_con"
+  }, [_c('div', {
+    staticClass: "tostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "team_name"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "vs"
+  }, [_vm._v("vs")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "team_name"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")])])])])])]), _vm._v(" "), _c('div', {
+    staticClass: "show_module"
+  }, [_c('div', {
+    staticClass: "module_title"
+  }, [_vm._v("OB练习赛")]), _vm._v(" "), _c('div', {
+    staticClass: "module_con"
+  }, [_c('div', {
+    staticClass: "tostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "team_name"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "vs"
+  }, [_vm._v("vs")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "team_name"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")])])]), _vm._v(" "), _c('div', {
+    staticClass: "btn_box"
+  }, [_c('button', {
+    staticClass: "mui-btn mui-btn-cheng-jieshou",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("接 受")]), _vm._v(" "), _c('button', {
+    staticClass: "mui-btn mui-btn-bai-jujue",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("拒 绝")])])])]), _vm._v(" "), _c('div', {
+    staticClass: "tostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "team_name"
+  }, [_vm._v("\n                                        TE-NAME\n                                    ")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "vs"
+  }, [_vm._v("vs")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })]), _vm._v(" "), _c('div', {
+    staticClass: "team_name"
+  }, [_vm._v("\n                                        TE-NAME\n                                    ")])])]), _vm._v(" "), _c('div', {
+    staticClass: "btn_box"
+  }, [_c('button', {
+    staticClass: "mui-btn mui-btn-cheng-jieshou",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("接 受")]), _vm._v(" "), _c('button', {
+    staticClass: "mui-btn mui-btn-bai-jujue",
+    attrs: {
+      "type": "button"
+    }
+  }, [_vm._v("拒 绝")])])])]), _vm._v(" "), _c('div', {
+    staticClass: "show_module"
+  }, [_c('div', {
+    staticClass: "module_title"
+  }, [_vm._v("OB历史")]), _vm._v(" "), _c('div', {
+    staticClass: "module_con"
+  }, [_c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])]), _vm._v(" "), _c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])]), _vm._v(" "), _c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])]), _vm._v(" "), _c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])]), _vm._v(" "), _c('div', {
+    staticClass: "minitostartgame_box"
+  }, [_c('div', {
+    staticClass: "tostartgame_con"
+  }, [_c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_left"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAMETE-NAMETE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_vs"
+  }, [_c('div', {
+    staticClass: "game_type"
+  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
+    staticClass: "game_time"
+  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
+    staticClass: "game_score_right"
+  }, [_c('div', {
+    staticClass: "team_name mui-ellipsis"
+  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
+    staticClass: "team_logo"
+  }, [_c('div', {
+    staticClass: "team_logo_box"
+  }, [_c('img', {
+    attrs: {
+      "src": __webpack_require__(0)
+    }
+  })])])])])]), _vm._v(" "), _c('div', {
+    staticClass: "btn_box_width"
+  }, [_vm._v("\n                            查看所有比赛历史\n                        ")])])])])])
+}]}
+
+/***/ }),
+
+/***/ 6:
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["mui"] = __webpack_require__(7);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+
+/***/ }),
+
+/***/ 7:
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -8688,1190 +9990,28 @@ Function.prototype.bind = Function.prototype.bind || function (to) {
 
 /***/ }),
 
-/***/ 46:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_vue__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__app_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_assets_css_mui_min_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_assets_css_public_css__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_assets_css_public_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_assets_css_public_css__);
-
-
-
-
-__WEBPACK_IMPORTED_MODULE_0_vue__["a" /* default */].config.productionTip = false;
-new __WEBPACK_IMPORTED_MODULE_0_vue__["a" /* default */]({
-    el: '#app',
-    render: function render(h) {
-        return h(__WEBPACK_IMPORTED_MODULE_1__app_vue___default.a);
-    }
-});
-
-/***/ }),
-
-/***/ 5:
+/***/ 93:
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["mui"] = __webpack_require__(4);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
-/***/ }),
+/* styles */
+__webpack_require__(195)
 
-/***/ 56:
-/***/ (function(module, exports) {
+var Component = __webpack_require__(8)(
+  /* script */
+  __webpack_require__(127),
+  /* template */
+  __webpack_require__(243),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
 
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ 6:
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-
-/***/ 66:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _vm._m(0)
-},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', [_c('footer', {
-    staticClass: "mui-bar mui-bar-footer",
-    attrs: {
-      "id": "cteate_btn"
-    }
-  }, [_c('button', {
-    staticClass: "mui-btn mui-btn-hong-creat",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("创建练习赛")])]), _vm._v(" "), _c('div', {
-    staticClass: "mui-content",
-    attrs: {
-      "id": "pullrefresh"
-    }
-  }, [_c('div', {
-    staticClass: "user_info"
-  }, [_c('div', {
-    staticClass: "user_info_face"
-  }, [_c('div', {
-    attrs: {
-      "id": "face"
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "manifesto mui-ellipsis"
-  }, [_vm._v("\n                小伙伴，搞起来！搞起来小伙伴，搞起来！搞起来小伙伴，搞起来！搞起来\n            ")]), _vm._v(" "), _c('div', {
-    staticClass: "user_info_msg"
-  }, [_c('div', {
-    staticClass: "user_name mui-pull-left"
-  }, [_c('p', {
-    attrs: {
-      "id": "userId"
-    }
-  }, [_vm._v("ID:1325786")]), _vm._v(" "), _c('p', {
-    staticClass: "fontweight mui-ellipsis",
-    attrs: {
-      "id": "userName"
-    }
-  }, [_vm._v("磨剪子抢菜刀磨剪子抢菜刀")])]), _vm._v(" "), _c('div', {
-    staticClass: "user_gamenum mui-pull-left"
-  }, [_c('p', [_vm._v("参赛场数")]), _vm._v(" "), _c('p', {
-    staticClass: "fontweight",
-    attrs: {
-      "id": "matchNum"
-    }
-  }, [_vm._v("120")])]), _vm._v(" "), _c('div', {
-    staticClass: "user_odds mui-pull-left"
-  }, [_c('p', [_vm._v("胜率")]), _vm._v(" "), _c('p', {
-    staticClass: "fontweight",
-    attrs: {
-      "id": "winRate"
-    }
-  }, [_vm._v("78%")])])]), _vm._v(" "), _c('div', {
-    attrs: {
-      "id": "like_game"
-    }
-  }, [_c('span', {
-    staticClass: "dota"
-  }), _vm._v(" "), _c('span', {
-    staticClass: "lol"
-  }), _vm._v(" "), _c('span', {
-    staticClass: "fengbao"
-  }), _vm._v(" "), _c('span', {
-    staticClass: "csgo"
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "combat_values"
-  }, [_vm._v("\n                2312\n            ")])]), _vm._v(" "), _c('div', {
-    staticClass: "con"
-  }, [_c('div', {
-    staticClass: "mui-segmented-control1"
-  }, [_c('a', {
-    staticClass: "mui-control-item1 mui-active",
-    attrs: {
-      "index": "0"
-    }
-  }, [_vm._v("\n                            我是选手\n                        ")]), _vm._v(" "), _c('a', {
-    staticClass: "mui-control-item1",
-    attrs: {
-      "index": "1"
-    }
-  }, [_vm._v("\n                            我是OB\n                        ")])]), _vm._v(" "), _c('div', {
-    staticClass: "display_box"
-  }, [_c('div', {
-    staticClass: "mui-control-content1 active"
-  }, [_c('div', {
-    staticClass: "show_module"
-  }, [_c('div', {
-    staticClass: "module_title"
-  }, [_vm._v("我的战队")]), _vm._v(" "), _c('div', {
-    staticClass: "module_con"
-  }, [_c('div', {
-    staticClass: "emptyToPlay"
-  }, [_c('span', {
-    staticClass: "empty_logo"
-  }, [_vm._v(" ")]), _vm._v(" "), _c('div', {
-    staticClass: "ss"
-  }, [_vm._v("无战队,请\n                                    "), _c('button', {
-    staticClass: "mui-btn mui-btn-cheng-ty",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("创建战队")]), _vm._v(" 或\n                                    "), _c('button', {
-    staticClass: "mui-btn mui-btn-green-jujue",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("加入其它战队")])]), _vm._v(" "), _c('p', [_vm._v("(每个用户一个游戏项目只能创建或者加入一个战队)")])])])]), _vm._v(" "), _c('div', {
-    staticClass: "show_module"
-  }, [_c('div', {
-    staticClass: "module_title"
-  }, [_vm._v("所在战队")]), _vm._v(" "), _c('div', {
-    staticClass: "module_con"
-  }, [_c('div', {
-    staticClass: "team_box"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }), _vm._v(" "), _c('div', {
-    staticClass: "team_games"
-  }, [_c('span', {
-    staticClass: "dota"
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "team_ifno"
-  }, [_c('h4', {
-    staticClass: "mui-ellipsis"
-  }, [_vm._v("Mesut Ozil")]), _vm._v(" "), _c('p', {
-    staticClass: "mui-ellipsis"
-  }, [_vm._v("小伙伴们！搞起来啊！快来啊搞起来啊！快来啊")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_effectiveness"
-  }, [_vm._v("\n                                    2341\n                                ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_btnbox"
-  }, [_c('button', {
-    staticClass: "mui-btn mui-btn-green-jujue",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("同意加入")])])]), _vm._v(" "), _c('div', {
-    staticClass: "team_box"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "team_games"
-  }, [_c('span', {
-    staticClass: "dota"
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "team_ifno"
-  }, [_c('h4', {
-    staticClass: "mui-ellipsis"
-  }, [_vm._v("Mesut Ozil")]), _vm._v(" "), _c('p', {
-    staticClass: "mui-ellipsis"
-  }, [_vm._v("小伙伴们！搞起来啊！快来啊搞起来啊！快来啊")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_effectiveness"
-  }, [_vm._v("\n                                    2341\n                                ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_btnbox"
-  }, [_c('button', {
-    staticClass: "mui-btn mui-btn-green-jujue",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("同意加入")]), _vm._v(" "), _c('button', {
-    staticClass: "mui-btn mui-btn-cheng-ty",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("拒绝邀请")])])])])]), _vm._v(" "), _c('div', {
-    staticClass: "show_module"
-  }, [_c('div', {
-    staticClass: "module_title"
-  }, [_vm._v("即将开始的比赛")]), _vm._v(" "), _c('div', {
-    staticClass: "module_con"
-  }, [_c('div', {
-    staticClass: "tostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "team_name"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "vs"
-  }, [_vm._v("vs")]), _vm._v(" "), _c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "team_name"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")])])])])])]), _vm._v(" "), _c('div', {
-    staticClass: "show_module"
-  }, [_c('div', {
-    staticClass: "module_title"
-  }, [_vm._v("近期的比赛")]), _vm._v(" "), _c('div', {
-    staticClass: "module_con"
-  }, [_c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])]), _vm._v(" "), _c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])]), _vm._v(" "), _c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])]), _vm._v(" "), _c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])]), _vm._v(" "), _c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAMETE-NAMETE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])])]), _vm._v(" "), _c('div', {
-    staticClass: "btn_box_width"
-  }, [_vm._v("\n                            查看所有比赛历史\n                        ")])])]), _vm._v(" "), _c('div', {
-    staticClass: "mui-control-content1"
-  }, [_c('div', {
-    staticClass: "show_module"
-  }, [_c('div', {
-    staticClass: "module_title"
-  }, [_vm._v("OB练习赛")]), _vm._v(" "), _c('div', {
-    staticClass: "module_con"
-  }, [_c('div', {
-    staticClass: "tostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "team_name"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "vs"
-  }, [_vm._v("vs")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "team_name"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")])])])])])]), _vm._v(" "), _c('div', {
-    staticClass: "show_module"
-  }, [_c('div', {
-    staticClass: "module_title"
-  }, [_vm._v("OB练习赛")]), _vm._v(" "), _c('div', {
-    staticClass: "module_con"
-  }, [_c('div', {
-    staticClass: "tostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "team_name"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "vs"
-  }, [_vm._v("vs")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "team_name"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")])])]), _vm._v(" "), _c('div', {
-    staticClass: "btn_box"
-  }, [_c('button', {
-    staticClass: "mui-btn mui-btn-cheng-jieshou",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("接 受")]), _vm._v(" "), _c('button', {
-    staticClass: "mui-btn mui-btn-bai-jujue",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("拒 绝")])])])]), _vm._v(" "), _c('div', {
-    staticClass: "tostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "team_name"
-  }, [_vm._v("\n                                        TE-NAME\n                                    ")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "vs"
-  }, [_vm._v("vs")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })]), _vm._v(" "), _c('div', {
-    staticClass: "team_name"
-  }, [_vm._v("\n                                        TE-NAME\n                                    ")])])]), _vm._v(" "), _c('div', {
-    staticClass: "btn_box"
-  }, [_c('button', {
-    staticClass: "mui-btn mui-btn-cheng-jieshou",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("接 受")]), _vm._v(" "), _c('button', {
-    staticClass: "mui-btn mui-btn-bai-jujue",
-    attrs: {
-      "type": "button"
-    }
-  }, [_vm._v("拒 绝")])])])]), _vm._v(" "), _c('div', {
-    staticClass: "show_module"
-  }, [_c('div', {
-    staticClass: "module_title"
-  }, [_vm._v("OB历史")]), _vm._v(" "), _c('div', {
-    staticClass: "module_con"
-  }, [_c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])]), _vm._v(" "), _c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])]), _vm._v(" "), _c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])]), _vm._v(" "), _c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])]), _vm._v(" "), _c('div', {
-    staticClass: "minitostartgame_box"
-  }, [_c('div', {
-    staticClass: "tostartgame_con"
-  }, [_c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_left"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAMETE-NAMETE-NAME\n                                        ")]), _vm._v("\n                                        2\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_vs"
-  }, [_c('div', {
-    staticClass: "game_type"
-  }, [_vm._v("正赛")]), _vm._v(" "), _c('div', {
-    staticClass: "game_time"
-  }, [_vm._v("2.12 12：00")])]), _vm._v(" "), _c('div', {
-    staticClass: "game_score_right"
-  }, [_c('div', {
-    staticClass: "team_name mui-ellipsis"
-  }, [_vm._v("\n                                            TE-NAME\n                                        ")]), _vm._v("\n                                        1\n                                    ")]), _vm._v(" "), _c('div', {
-    staticClass: "team_logo"
-  }, [_c('div', {
-    staticClass: "team_logo_box"
-  }, [_c('img', {
-    attrs: {
-      "src": __webpack_require__(0)
-    }
-  })])])])])]), _vm._v(" "), _c('div', {
-    staticClass: "btn_box_width"
-  }, [_vm._v("\n                            查看所有比赛历史\n                        ")])])])])])])])
-}]}
-
-/***/ }),
-
-/***/ 7:
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return app; });
-/**
- * 演示程序当前的 “注册/登录” 等操作，是基于 “本地存储” 完成的
- * 当您要参考这个演示程序进行相关 app 的开发时，
- * 请注意将相关方法调整成 “基于服务端Service” 的实现。
- **/
-/**
- * 用户登录
- **/
-var app = {};
-app.login = function (loginInfo, callback) {
-    callback = callback || $.noop;
-    loginInfo = loginInfo || {};
-    loginInfo.mobile = loginInfo.mobile || '';
-    loginInfo.password = loginInfo.password || '';
-    /************************************************************************/
-    /*加入手机信息                                                           */
-    /************************************************************************/
-    loginInfo.device = plus.device.vendor || ''; //生产厂家
-    loginInfo.model = plus.device.model || ''; //设备名称
-    loginInfo.screen = plus.screen.resolutionWidth + ',' + plus.screen.resolutionHeight || ''; //分辨率
-    loginInfo.sys = plus.os.name || ''; //系统类型
-    loginInfo.version = plus.os.version || ''; //系统版本
-    loginInfo.no = plus.device.uuid || ''; //设备id
-    /************************************************************************/
-    /*验证手机号不为空                             */
-    /************************************************************************/
-    var phonereg = /^$/;
-    if (phonereg.test(loginInfo.mobile)) {
-        return callback('请输入手机号码');
-    }
-    /************************************************************************/
-    /*验证密码不为空                            */
-    /************************************************************************/
-    var passwordreg = /^$/;
-    if (passwordreg.test(loginInfo.password)) {
-        return callback('请输入密码');
-    }
-    /************************************************************************/
-    /*验证完成后发送ajax请求                              */
-    /************************************************************************/
-    mui.ajax('https://api.gaoqi.cespc.com:9378/user/login', {
-        data: loginInfo,
-        dataType: 'json', //服务器返回json格式数据
-        type: 'post', //HTTP请求类型
-        timeout: 10000, //超时时间设置为10秒；
-        success: function success(data) {
-            if (data.ret == 1) {
-                var obj = {};
-                obj.ticket = data.ticket;
-                obj.expire_timestamp = data.expire_timestamp;
-                obj.user = data.user;
-                console.log(JSON.stringify(obj));
-                app.setState(obj); //存入注册信息到本地
-                app.setAllReginfo(obj); //将信息存贮到本地 防止未完善信息的用户进入 需完善信息时使用
-                // app.setReginfo('ticket', obj.ticket); 
-                // app.setReginfo('expire_timestamp', obj.expire_timestamp);
-                // app.setReginfo('user', obj.user);
-                console.log('与后台交互了');
-                //这里需要添加如果用户的返回值是未完善跳转到完善信息页面
-                return callback();
-            } else {
-                callback(data.err);
-            }
-        },
-        error: function error(xhr, type, errorThrown) {
-            //异常处理；
-            if (type == 'timeout') {
-                plus.nativeUI.toast('请求超时，请你检查您的网络');
-            } else if (type == 'abort') {
-                plus.nativeUI.toast('请检查您的网络是否链接');
-            } else if (type == 'timeout') {
-                plus.nativeUI.toast('服务器错误');
-            }
-            console.log(type);
-        }
-    });
-};
-
-/**
- * 新用户注册
- **/
-app.reg = function (regInfo, callback) {
-    callback = callback || $.noop;
-    regInfo = regInfo || {};
-    regInfo.mobile = regInfo.mobile || '';
-    regInfo.password = regInfo.password || '';
-    /************************************************************************/
-    /*加入手机信息                                                           */
-    /************************************************************************/
-    regInfo.device = plus.device.vendor || ''; //生产厂家
-    regInfo.model = plus.device.model || ''; //设备名称
-    regInfo.screen = plus.screen.resolutionWidth + ',' + plus.screen.resolutionHeight || ''; //分辨率
-    regInfo.sys = plus.os.name || ''; //系统类型
-    regInfo.version = plus.os.version || ''; //系统版本
-    regInfo.no = plus.device.uuid || ''; //设备id
-    /************************************************************************/
-    /*验证手机号不为空                              */
-    /************************************************************************/
-    var noNull = /^$/;
-    if (noNull.test(regInfo.mobile)) {
-        return callback('请输入手机号码');
-    }
-    /************************************************************************/
-    /*验证密码不为空                              */
-    /************************************************************************/
-    if (noNull.test(regInfo.password)) {
-        return callback('密码不能为空');
-    }
-    /************************************************************************/
-    /*验证验证码不为空                              */
-    /************************************************************************/
-    if (noNull.test(regInfo.code)) {
-        return callback('请输入验证码');
-    }
-
-    mui.ajax('https://api.gaoqi.cespc.com:9378/user/register', {
-        data: regInfo,
-        dataType: 'json', //服务器返回json格式数据
-        type: 'post', //HTTP请求类型
-        timeout: 10000, //超时时间设置为10秒；
-        success: function success(data) {
-            if (data.ret == 1) {
-                console.log('注册提交成功');
-                // var obj = {}; 注册时不将用户信息存储在本地用户信息中 用户下次登录不会直接登录上次的信息
-                // obj.ticket = data.ticket;
-                // obj.expire_timestamp = data.expire_timestamp;
-                // obj.user = data.user;
-                // app.setState(obj);
-                console.log(JSON.stringify(data));
-                app.setReginfo('ticket', data.ticket); //将用户信息存贮到本地 下一步注册只用
-                app.setReginfo('expire_timestamp', data.expire_timestamp);
-                app.setReginfo('user', data.user);
-                console.log(JSON.stringify(app.getReginfo()));
-                console.log('ticket user expire_timestamp 已经添加');
-                return callback();
-            } else {
-                /*如果用户已经注册 用户返回登录页面*/
-                if (data.ret == '20204' || data.ret == 20204) {
-                    return callback(data.ret);
-                }
-                callback(data.err);
-            }
-        },
-        error: function error(xhr, type, errorThrown) {
-            //异常处理；
-            if (type == 'timeout') {
-                plus.nativeUI.toast('请求超时，请你检查您的网络');
-            } else if (type == 'abort') {
-                plus.nativeUI.toast('请检查您的网络是否链接');
-            } else if (type == 'timeout') {
-                plus.nativeUI.toast('服务器错误');
-            }
-            console.log(type);
-        }
-    });
-    //注册后如果返回值是20204 用户已经登录过 清空本地用户数据（避免进入登录页面后用户自动登录） 跳转登录页面 登录页面再判断用户是不是完善了喜欢游戏等个人的信息
-};
-
-/**
- * 验证用户个人信息
- **/
-app.info = function (loginInfo, callback) {
-    callback = callback || $.noop;
-    loginInfo = loginInfo || {};
-    /************************************************************************/
-    /*验证昵称不能为空                                                        */
-    /************************************************************************/
-    var phonereg = /^$/;
-    if (phonereg.test(loginInfo.nickname)) {
-        return callback('请输入昵称');
-    }
-
-    /************************************************************************/
-    /*验证性别不为空                            */
-    /************************************************************************/
-    var passwordreg = /^$/;
-    if (passwordreg.test(loginInfo.gender)) {
-        return callback('请选择性别');
-    }
-    /************************************************************************/
-    /*验证所在地不为空                            */
-    /************************************************************************/
-    var passwordreg = /^$/;
-    if (passwordreg.test(loginInfo.provinceid)) {
-        return callback('请选择所在地域');
-    }
-    //存储用个人信息在本地，不发送ajax请求，待选择完游戏后一起发送
-    app.setAllReginfolin(loginInfo); //临时存贮信息，下一个选择游戏表单合并数据后后台提交信息之用
-    return callback();
-};
-/************************************************************************/
-/*用户选择游戏项目完成注册                              */
-/************************************************************************/
-app.selectgame = function (loginInfo, callback) {
-    callback = callback || $.noop;
-    loginInfo = loginInfo || {};
-    /*验证用户至少选择了一个游戏项目*/
-    if (loginInfo.games == '') {
-        return callback('请选择您喜欢的游戏项目');
-    };
-    mui.ajax('https://api.gaoqi.cespc.com:9378/user/info/edit', {
-        data: loginInfo,
-        dataType: 'json', //服务器返回json格式数据
-        type: 'post', //HTTP请求类型
-        timeout: 10000, //超时时间设置为10秒；
-        success: function success(data) {
-            if (data.ret == 1) {
-                console.log('用户已经完善了用户信息，并提交信息成功');
-                var obj = app.getReginfo();
-                obj.user = data.user;
-                console.log(JSON.stringify(data.user));
-                app.setState(obj); //设置将用户信息存储在本地
-                console.log(JSON.stringify(app.getReginfo()));
-                app.setAllReginfo(null); //清空本地用户注册信息
-                console.log(JSON.stringify(app.getState()));
-                return callback();
-            } else {
-                callback(data.err);
-            }
-        },
-        error: function error(xhr, type, errorThrown) {
-            //异常处理；
-            if (type == 'timeout') {
-                plus.nativeUI.toast('请求超时，请你检查您的网络');
-            } else if (type == 'abort') {
-                plus.nativeUI.toast('请检查您的网络是否链接');
-            } else if (type == 'timeout') {
-                plus.nativeUI.toast('服务器错误');
-            }
-            console.log(type);
-        }
-    });
-};
-/**
- * 获取当前登录信息
- **/
-app.getState = function () {
-    //var stateText = localStorage.getItem('$state') || "{}";
-    var stateText = plus.storage.getItem('$state') || "{}";
-    return JSON.parse(stateText);
-};
-
-/**
- * 存储当前的登录信息
- **/
-app.setState = function (state) {
-    var state = state || {};
-    //localStorage.setItem('$state', JSON.stringify(state));
-    plus.storage.setItem('$state', JSON.stringify(state));
-};
-
-/**
- * 获得注册信息
- **/
-
-app.getReginfo = function () {
-    var stateText = plus.storage.getItem('$reginfo') || "{}";
-    return JSON.parse(stateText);
-    //除了用户头像单独存储 其余都是存储在注册信息中 头像最后加入到注册信息中 发送给服务器。
-};
-
-/**
- * 逐条添加注册信息到本地
- **/
-app.setReginfo = function (name, value) {
-    var reginfo = app.getReginfo() || {};
-    reginfo[name] = value;
-    plus.storage.setItem('$reginfo', JSON.stringify(reginfo));
-};
-/**
- * 一次性添加注册信息到本地
- **/
-app.setAllReginfo = function (value) {
-    var reginfo = value || {};
-    plus.storage.setItem('$reginfo', JSON.stringify(reginfo));
-};
-
-/**
- * 获得info临时位置的值
- **/
-app.getReginfolin = function () {
-    var stateText = plus.storage.getItem('$reginfolin') || "{}";
-    return JSON.parse(stateText);
-    //除了用户头像单独存储 其余都是存储在注册信息中 头像最后加入到注册信息中 发送给服务器。
-};
-
-/**
- * 逐条添加注册信息到本地
- **/
-app.setReginfolin = function (name, value) {
-    var reginfo = app.getReginfolin() || {};
-    reginfo[name] = value;
-    plus.storage.setItem('$reginfolin', JSON.stringify(reginfo));
-};
-/**
- * 将info的信息存贮到临时位置
- **/
-app.setAllReginfolin = function (value) {
-    var reginfo = value || {};
-    plus.storage.setItem('$reginfolin', JSON.stringify(reginfo));
-};
-
-var checkEmail = function checkEmail(email) {
-    email = email || '';
-    return email.length > 3 && email.indexOf('@') > -1;
-};
-
-/**
- * 找回密码
- **/
-app.forgetPassword = function (email, callback) {
-    callback = callback || $.noop;
-    if (!checkEmail(email)) {
-        return callback('邮箱地址不合法');
-    }
-    return callback(null, '新的随机密码已经发送到您的邮箱，请查收邮件。');
-};
-
-/**
- * 设置应用本地配置
- **/
-app.setSettings = function (settings) {
-    settings = settings || {};
-    localStorage.setItem('$settings', JSON.stringify(settings));
-};
-
-/**
- * 获得应用本地配置
- **/
-app.getSettings = function () {
-
-    var settingsText = localStorage.getItem('$settings') || "{}";
-    console.log(settingsText);
-    return JSON.parse(settingsText);
-};
-/**
- * 获取本地是否安装客户端
- **/
-app.isInstalled = function (id) {
-    if (id === 'qihoo' && mui.os.plus) {
-        return true;
-    }
-    if (mui.os.android) {
-        var main = plus.android.runtimeMainActivity();
-        var packageManager = main.getPackageManager();
-        var PackageManager = plus.android.importClass(packageManager);
-        var packageName = {
-            "qq": "com.tencent.mobileqq",
-            "weixin": "com.tencent.mm",
-            "sinaweibo": "com.sina.weibo"
-        };
-        try {
-            return packageManager.getPackageInfo(packageName[id], PackageManager.GET_ACTIVITIES);
-        } catch (e) {}
-    } else {
-        switch (id) {
-            case "qq":
-                var TencentOAuth = plus.ios.import("TencentOAuth");
-                return TencentOAuth.iphoneQQInstalled();
-            case "weixin":
-                var WXApi = plus.ios.import("WXApi");
-                return WXApi.isWXAppInstalled();
-            case "sinaweibo":
-                var SinaAPI = plus.ios.import("WeiboSDK");
-                return SinaAPI.isWeiboAppInstalled();
-            default:
-                break;
-        }
-    }
-};
-/************************************************************************/
-/*生成验证码                                                             */
-/************************************************************************/
-app.getverificationCode = function (phonenum, callback) {
-    console.log('进入验证码发送程序');
-    console.log(phonenum);
-    mui.ajax('https://api.gaoqi.cespc.com:9378/user/register/sendsms', {
-        data: {
-            'mobile': phonenum
-        },
-        dataType: 'json', //服务器返回json格式数据
-        type: 'post', //HTTP请求类型
-        timeout: 10000, //超时时间设置为10秒；
-        success: function success(data) {
-            if (data.ret == 1) {
-                console.log('验证码已发送到后台');
-                return callback();
-            } else {
-                return callback(data.err);
-            }
-        },
-        error: function error(xhr, type, errorThrown) {
-            //异常处理；
-            if (type === 'timeout') {
-                plus.nativeUI.toast('请求超时，请你检查您的网络');
-            } else if (type === 'abort') {
-                plus.nativeUI.toast('请检查您的网络是否链接');
-            } else if (type === 'timeout') {
-                plus.nativeUI.toast('服务器错误');
-            }
-            console.log(type);
-        }
-    });
-};
-app.gotoLogView = function () {
-    app.setState(null); //清空用户信息，防止用户自动登录
-    mui.openWindow({
-        url: plus.webview.getWebviewById(plus.runtime.appid).getURL(), //获取默认首页的地址
-        id: plus.webview.getWebviewById(plus.runtime.appid), //获取首页的id
-        preload: true,
-        show: {
-            aniShow: 'pop-in'
-        },
-        styles: {
-            popGesture: 'hide'
-        },
-        waiting: {
-            autoShow: false
-        },
-        extras: { //附带参数让登录页面不再验证main是否加载完成
-            main_loaded: 'true'
-        }
-    });
-};
+module.exports = Component.exports
 
 
 /***/ })
 
-},[46]);
+},[162]);
 //# sourceMappingURL=user_private.js.map

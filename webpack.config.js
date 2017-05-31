@@ -1,36 +1,38 @@
-const { join, resolve } = require('path')
-const webpack = require('webpack')
-const glob = require('glob')
+const { join, resolve } = require('path');
+const webpack = require('webpack');
+const glob = require('glob');
 
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const extractCSS = new ExtractTextPlugin({
     filename: 'assets/css/[name].css',
     allChunks: true
-})
+});
 
-const entries = {}
-const chunks = []
+const entries = {};
+const chunks = [];
 glob.sync('./src/pages/**/app.js').forEach(path => {
-    const chunk = path.split('./src/pages/')[1].split('/app.js')[0]
-    entries[chunk] = path
-    chunks.push(chunk)
-})
+    const chunk = path.split('./src/pages/')[1].split('/app.js')[0];
+    entries[chunk] = path;
+    chunks.push(chunk);
+});
 
 const config = {
     entry: entries,
     output: {
         path: resolve(__dirname, './dist'),
-        filename: 'assets/js/[name].js',
+        filename: 'assets/js/[name].js'
     },
     resolve: {
         extensions: ['.js', '.vue'],
         alias: {
             assets: join(__dirname, '/src/assets'),
             components: join(__dirname, '/src/components'),
-            root: join(__dirname, 'node_modules')
+            root: join(__dirname, 'node_modules'),
+            vue: 'vue/dist/vue.js'
         }
     },
     module: {
@@ -75,7 +77,7 @@ const config = {
             use: [{
                 loader: 'url-loader',
                 options: {
-                    limit: 10000,
+                    limit: 4000,
                     name: 'assets/img/[name].[ext]'
                 }
             }]
@@ -84,7 +86,7 @@ const config = {
             use: [{
                 loader: 'url-loader',
                 options: {
-                    limit: 10000,
+                    limit: 4000,
                     name: 'assets/fonts/[name].[ext]'
                 }
             }]
@@ -97,41 +99,47 @@ const config = {
             chunks: chunks,
             minChunks: chunks.length
         }),
-        extractCSS
+        extractCSS,
+        new CopyWebpackPlugin([{
+            from: resolve(__dirname, './src/common'),
+            to: resolve(__dirname, './dist/common'),
+            ignore: ['.*']
+        }])
     ],
     devServer: {
-        contentBase: join(__dirname, "dist"),
+        contentBase: join(__dirname, 'dist'),
         host: '127.0.0.1',
         port: 8010,
+        open: true,
         historyApiFallback: false,
-        noInfo: true,
+        noInfo: true
     },
     devtool: '#eval-source-map'
-}
+};
 
 glob.sync('./src/pages/**/*.html').forEach(path => {
-    const chunk = path.split('./src/pages/')[1].split('/app.html')[0]
-    const filename = chunk + '.html'
+    const chunk = path.split('./src/pages/')[1].split('/app.html')[0];
+    const filename = chunk + '.html';
     const htmlConf = {
         filename: filename,
         template: path,
         inject: 'body',
         hash: process.env.NODE_ENV === 'production',
         chunks: ['vendors', chunk]
-    }
-    config.plugins.push(new HtmlWebpackPlugin(htmlConf))
-})
+    };
+    config.plugins.push(new HtmlWebpackPlugin(htmlConf));
+});
 
-module.exports = config
+module.exports = config;
 
 if (process.env.NODE_ENV === 'production') {
-    module.exports.devtool = '#source-map'
+    module.exports.devtool = '#source-map';
     module.exports.plugins = (module.exports.plugins || []).concat([
         new webpack.DefinePlugin({
             'process.env': {
                 NODE_ENV: '"production"'
             }
-        }),
+        })
 
-    ])
+    ]);
 }

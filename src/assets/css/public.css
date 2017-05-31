@@ -10,20 +10,8 @@ body.login {
     background-size: 100% auto;
 }
 
-.mui-content {
-    /*height: 100%;*/
-}
-
-.mui-bar-nav~.mui-content {
-    /*padding-top: 60px*/
-}
-
 .mui-bar-nav a {
     color: #fff;
-}
-
-.mui-bar {
-    /*height: 60px;*/
 }
 
 .mui-bar-nav {
@@ -446,8 +434,6 @@ body.login {
 
 /*公共样式*/
 
-.show_module {}
-
 .show_module .module_title {
     height: 38px;
     border-top: 1px solid #c8c7cc;
@@ -737,7 +723,6 @@ body.login {
     width: 100%;
     height: 100%;
     padding-top: 10px;
-    vertical-align: middle;
     font-size: 13px;
     line-height: 22px;
     background: #c8292e;
@@ -751,7 +736,6 @@ body.login {
     width: 100%;
     height: 100%;
     padding-top: 10px;
-    vertical-align: middle;
     font-size: 13px;
     line-height: 22px;
     background: #b8b8b8;
@@ -765,7 +749,6 @@ body.login {
     width: 100%;
     height: 100%;
     padding-top: 10px;
-    vertical-align: middle;
     font-size: 13px;
     line-height: 22px;
     background: #2b9b2b;
@@ -939,7 +922,6 @@ body.login {
 .tostartgame_box .team_logo {
     flex: 2;
     /*padding: 15px;*/
-
 }
 
 .tostartgame_box .team_logo .zhuke {
@@ -1256,6 +1238,7 @@ body.login {
 .article_box .article_con {
     width: 90%;
     margin: 12px auto;
+    font-size: 14px;
 }
 
 .practice_box {
@@ -1397,7 +1380,6 @@ body.login {
     display: block;
     width: 80%;
     height: 100%;
-    vertical-align: middle;
     background: #c8292e;
     text-align-last: justify;
     padding: 0 20%;
@@ -1410,7 +1392,6 @@ body.login {
     display: block;
     width: 80%;
     height: 100%;
-    vertical-align: middle;
     background: #b8b8b8;
     text-align-last: justify;
     padding: 0 20%;
@@ -1423,7 +1404,6 @@ body.login {
     display: block;
     width: 80%;
     height: 100%;
-    vertical-align: middle;
     background: #2b9b2b;
     text-align-last: justify;
     padding: 0 20%;

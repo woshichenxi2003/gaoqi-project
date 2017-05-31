@@ -49,7 +49,6 @@ app.login = function(loginInfo, callback) {
                 obj.ticket = data.ticket;
                 obj.expire_timestamp = data.expire_timestamp;
                 obj.user = data.user;
-                console.log(JSON.stringify(obj));
                 app.setState(obj); //存入注册信息到本地
                 app.setAllReginfo(obj); //将信息存贮到本地 防止未完善信息的用户进入 需完善信息时使用
                 // app.setReginfo('ticket', obj.ticket); 
@@ -413,15 +412,16 @@ app.getverificationCode = function(phonenum, callback) {
             } else if (type === 'timeout') {
                 plus.nativeUI.toast('服务器错误');
             }
-            console.log(type);
         }
     })
 };
 app.gotoLogView = function() {
     app.setState(null); //清空用户信息，防止用户自动登录
     mui.openWindow({
-        url: plus.webview.getWebviewById(plus.runtime.appid).getURL(), //获取默认首页的地址
-        id: plus.webview.getWebviewById(plus.runtime.appid), //获取首页的id
+        // url: plus.webview.getWebviewById(plus.runtime.appid).getURL(), //获取默认首页的地址
+        // id: plus.webview.getWebviewById(plus.runtime.appid), //获取首页的id
+        url: 'login.html',
+        id: 'login.html',
         preload: true,
         show: {
             aniShow: 'pop-in'

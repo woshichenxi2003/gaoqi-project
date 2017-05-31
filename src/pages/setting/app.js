@@ -4,6 +4,7 @@ import 'assets/css/mui.min.css';
 import 'assets/css/mui.picker.css';
 import 'assets/css/mui.poppicker.css';
 import 'assets/css/cropper.css';
+import 'assets/css/setting.css';
 Vue.config.productionTip = false;
 new Vue({
     el: '#app',

@@ -36,7 +36,6 @@
             statusBarBackground: '#f7f7f7',
         });
         mui.plusReady(function() {
-
             //仅支持竖屏显示
             plus.screen.lockOrientation("portrait-primary");
             //获得setting系统配置
@@ -50,8 +49,8 @@
             var showGuide = plus.storage.getItem("lauchFlag");
             if (!showGuide) {
                 mui.openWindow({
-                    id: 'html/guide.html',
-                    url: 'html/guide.html',
+                    id: 'guide.html',
+                    url: 'guide.html',
                     styles: {
                         popGesture: "none"
                     },
@@ -66,6 +65,7 @@
             /************************************************************************/
             /*判断主页是否已经加载完毕了 并定义跳转函数tomain                            */
             /************************************************************************/
+            
             var mainPage = mui.preload({
                 "id": 'index.html',
                 "url": 'index.html'
@@ -82,11 +82,12 @@
             var toMain = function() {
                 //使用定时器的原因：
                 //可能执行太快，main页面loaded事件尚未触发就执行自定义事件，此时必然会失败
+                
                 var id = setInterval(function() {
                     if (main_loaded_flag) {
                         console.log('首页预加载完成，进入首页');
                         clearInterval(id);
-                        mui.fire(mainPage, 'show', null);
+                        mui.fire(mainPage, 'showall', null); //将登陆事件传递给首页 让首页更新各个页面
                         mainPage.show("pop-in");
                     } else {
                         console.log("首页预加载未完成，所以不能跳转到首页");
@@ -154,9 +155,9 @@
                 plus.webview.show(missObj, 'pop-in', 250);
             }, false);
             //
-            window.addEventListener('resize', function() {
-                oauthArea.style.display = document.body.clientHeight > 400 ? 'block' : 'none';
-            }, false);
+            // window.addEventListener('resize', function() {
+            //     oauthArea.style.display = document.body.clientHeight > 400 ? 'block' : 'none';
+            // }, false);
             //
             var backButtonPress = 0;
             mui.back = function(event) {

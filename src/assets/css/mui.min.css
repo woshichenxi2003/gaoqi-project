@@ -4,7 +4,10 @@ html {
 	font-family: sans-serif;
 	-webkit-text-size-adjust: 100%
 }
-
+.ubg{
+    background: url("../img/huadong/hui_bg.png") left bottom / 100% no-repeat rgb(238, 238, 238);
+}
+.bf{    background: url('../img/logo_gui.png') center center no-repeat;}
 body {
 	margin: 0
 }
